@@ -6,6 +6,10 @@ import os
 import re
 import sys
 
+"""
+TODO stringcomment.cool
+TODO 
+"""
 class CoolLexer(Lexer): 
     '''
     Empieza en Apartado 10 del manual de Cool
@@ -47,7 +51,7 @@ class CoolLexer(Lexer):
     @_(r'[0-9]+')
     def INT_CONST(self, t): return t
 
-    @_(r't[rR][uU][eE]|f[aA][lL][sS][eE]')
+    @_(r'\bt[rR][uU][eE]\b|\bf[aA][lL][sS][eE]\b')
     def BOOL_CONST(self, t):
         return t
 

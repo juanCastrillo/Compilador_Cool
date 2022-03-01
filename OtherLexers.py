@@ -14,7 +14,7 @@ class Comment_Ml(Lexer):
         t.value = self._word
         self.begin(L.CoolLexer)
         self._word = ""
-        return t # TODO domingo.domingogomez@gmail.com hacer un github e invitarle al repositorio poner como issues los problemas que me vayan surgiendo
+        return t
 
     @_(r'.|\n')
     def CONTENT(self, t):
@@ -32,12 +32,12 @@ class Comment(Lexer):
     tokens = {}
     _word = ""
 
-    @_(r'\n')
+    @_(r'\\n')
     def STR_CONST(self, t):
         t.value = self._word
         self.begin(L.CoolLexer)
         self._word = ""
-        # return t
+        return t
 
     @_(r'.')
     def CONTENT(self, t):
@@ -54,14 +54,6 @@ class Stringg(Lexer):
     tokens = {}
     _word = '"'
 
-    @_(r'"')
-    def STR_CONST(self, t):
-        self._word += '"'
-        t.value = self._word
-        self.begin(L.CoolLexer)
-        self._word = '"'
-        return t
-
     """
     Caracteres que no se escapan
         \b backspace 
@@ -73,32 +65,58 @@ class Stringg(Lexer):
     def BACKSPACE(self, t):
         self._word += r"\b"
 
-    @_(r'\t')
+    @_(r'\\t')
     def TAB(self, t):
         self._word += r"\t" # r"\\"+t.value
 
-    @_(r'\n')
+    @_(r'\\\n') # \.
+    def OSC(self, t):
+        print(self._word)
+        print(t.value)
+        self._word += r"\n"#t.value
+
+    @_(r'\\n')
     def NEWLINE(self, t):
         self._word += r"\n"
 
     @_(r'\\f')
     def FORMFEED(self, t):
         self._word += r"\f"
-    
+
+    @_(r'"')
+    def STR_CONST(self, t):
+        self._word += '"'
+        t.value = self._word
+        self.begin(L.CoolLexer) # FIN
+        self._word = '"'
+        return t
+
     """"""
-    @_(r'\.')
+
+    @_(r'\\[A-Za-z0-9]') # Se elimina la \ de los caracteres o numeros
     def ONESLASH(self, t):
+        print(t.value)
         self._word += t.value[-1]
 
-    @_(r'\\.')
+    @_(r'\\\[A-Za-z0-9]') # \\.
     def TWOSLASH(self, t):
-        self._word += t.value[-1]
+        print(t.value)
+        self._word += t.value#[1:2]
+
+    @_(r'\\.') # \.
+    def ONESLASHCHARACT(self, t):
+        self._word += t.value
 
     @_(r'.')
-    def TWOSLASH(self, t):
+    def CHARACT(self, t):
         self._word += t.value
 
     """
+    "A string may not contain EOF. 
+        A string may not contain the null (character \0). 
+        Any other character may be included in a string. 
+        Strings cannot cross file boundaries."
+
     Caracteres no permitidos
         null (character \0)
         EOF

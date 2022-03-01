@@ -28,6 +28,7 @@ TESTS = TESTS
 if True:
     for fich in TESTS:
         lexer = CoolLexer()
+        if "backslash.cool" != fich: continue
         f = open(os.path.join(DIR, fich), 'r', newline='')
         g = open(os.path.join(DIR, fich + '.out'), 'r', newline='')
         if os.path.isfile(os.path.join(DIR, fich)+'.nuestro'):
@@ -43,7 +44,7 @@ if True:
             resultado = g.read()
             g.close()
             if texto.strip().split() != resultado.strip().split():
-                print(f"Revisa el fichero {fich}")
+                print(f"Incorrecto: {fich}")
                 if DEBUG:
                     texto = re.sub(r'#\d+\b','',texto)
                     resultado = re.sub(r'#\d+\b','',resultado)
@@ -52,8 +53,8 @@ if True:
                     linea = 0
                     while nuestro[linea:linea+NUMLINEAS] == bien[linea:linea+NUMLINEAS]:
                         linea += 1
-                    print(colored('\n'.join(nuestro[linea:linea+NUMLINEAS]), 'white', 'on_red'))
-                    print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))
+                    # print(colored('\n'.join(nuestro[linea:linea+NUMLINEAS]), 'white', 'on_red'))
+                    # print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))
                     f = open(os.path.join(DIR, fich)+'.nuestro', 'w')
                     g = open(os.path.join(DIR, fich)+'.bien', 'w')
                     f.write(texto.strip())
@@ -75,15 +76,15 @@ if True:
                     resultado = '\n'.join(parser.errores)
                     resultado += '\n' + "Compilation halted due to lex and parse errors"
                 if resultado.lower().strip().split() != bien.lower().strip().split():
-                    print(f"Revisa el fichero {fich}")
+                    print(f"Incorrecto: {fich}")
                     if DEBUG:
                         nuestro = [linea for linea in resultado.split('\n') if linea]
                         bien = [linea for linea in bien.split('\n') if linea]
                         linea = 0
                         while nuestro[linea:linea+NUMLINEAS] == bien[linea:linea+NUMLINEAS]:
                             linea += 1
-                        print(colored('\n'.join(nuestro[linea:linea+NUMLINEAS]), 'white', 'on_red'))
-                        print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))
+                        # print(colored('\n'.join(nuestro[linea:linea+NUMLINEAS]), 'white', 'on_red'))
+                        # print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))
                         f = open(os.path.join(DIR, fich)+'.nuestro', 'w')
                         g = open(os.path.join(DIR, fich)+'.bien', 'w')
                         f.write(resultado.strip())

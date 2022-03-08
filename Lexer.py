@@ -8,7 +8,6 @@ import sys
 
 """
 TODO stringcomment.cool
-TODO 
 """
 class CoolLexer(Lexer): 
     '''
@@ -24,12 +23,12 @@ class CoolLexer(Lexer):
         POOL, THEN, WHILE, NUMBER, 
         STR_CONST, # Cerrado entre "", hay que sustituir todos los caracteres ej: \c por c
             # excepto \b, \t, \n, \f
-        LE, # Menor que 
+        LE, # Menor o igual que 
         DARROW, # => 
         ASSIGN # <-
     }
     ignore = '\t '
-    literals = {',', ';', ':', '@'}
+    literals = {'.', ',', ';', ':', '@', '{', '}', '(', ')', '+', '~', '<', '>', '-', '*', '=', '/'}
     # Ejemplo
     ELSE = r'\b[eE][lL][sS][eE]\b'
 
@@ -123,21 +122,29 @@ class CoolLexer(Lexer):
     def NUMBER(self, t): return t
 
     """"""
+    # @_(r'_|\!|\#|\$|\%|\^|\&|>|?|\`|\[|\]|\\\|\|') # TODO Fix
+    @_(r'[_!#$%^&>?`[\]\\|]|\\\\')
+    def STRANGESYMBOLS(self, t): 
+        t.type = "ERROR"
+        t.value = f'"{t.value}"'
+        return t
 
     """
     Simbolos
-    LE, # Menor que 
+    LE, # Menor o igual que 
         DARROW, # => 
         ASSIGN # <-
     """
-    @_(r'<')
+    @_(r'<-')
+    def ASSIGN(self, t): return t
+
+    @_(r'<=')
     def LE(self, t): return t
 
     @_(r'=>')
     def DARROW(self, t): return t
     
-    @_(r'<-')
-    def ASSIGN(self, t): return t
+    
 
     """
     EXTRA
@@ -150,8 +157,10 @@ class CoolLexer(Lexer):
 
     def error(self, t):
         # t.value = # Modificar el valor del ID a devolver
+        t.type = "ERROR"
         self.index += 1 # Avanza al siguiente caracter
-        #return t
+        return t
+        
 
     """
     Cambiar entre analizadores léxicos
@@ -164,6 +173,12 @@ class CoolLexer(Lexer):
     @_(r'\(\*') # Comentario multilinea
     def COMMENT_ML(self, t):
         self.begin(Comment_Ml)
+
+    @_(r'\*\)') # Error
+    def COMMENT_ML_ERROR(self, t):
+        t.type="ERROR"
+        t.value='"Unmatched *)"'
+        return t
 
     @_(r'--') # Comentario una linea
     def COMMENT(self, t):
@@ -183,7 +198,7 @@ class CoolLexer(Lexer):
             if token.type == 'OBJECTID':
                 result += f"{token.value}"
             elif token.type == 'BOOL_CONST':
-                result += "true" if token.value else "false"
+                result += "true" if token.value.lower() == "true" else "false"
             elif token.type == 'TYPEID':
                 result += f"{str(token.value)}"
             elif token.type in self.literals:

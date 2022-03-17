@@ -28,7 +28,7 @@ TESTS = TESTS
 if True:
     for fich in TESTS:
         lexer = CoolLexer()
-        if "escapedeof.cool" != fich: continue
+        # if "escapedeof.cool" != fich: continue
         f = open(os.path.join(DIR, fich), 'r', newline='')
         g = open(os.path.join(DIR, fich + '.out'), 'r', newline='')
         if os.path.isfile(os.path.join(DIR, fich)+'.nuestro'):

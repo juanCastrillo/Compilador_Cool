@@ -1,3 +1,4 @@
+from distutils.log import error
 from sly import Lexer
 import Lexer as L
 
@@ -23,8 +24,6 @@ class Comment_Ml(Lexer):
         if self.commentCount < 1:
             self.commentCount = 1
             self.begin(L.CoolLexer)
-        
-        #return t
 
     @_(r'.|\n')
     def CONTENT(self, t):
@@ -70,6 +69,7 @@ String lexer analyzer
 class Stringg(Lexer):
     tokens = {}
     _word = '"'
+    errors = False
 
     """
     Caracteres que no se escapan
@@ -110,87 +110,69 @@ class Stringg(Lexer):
         self.begin(L.CoolLexer)
         return t
 
-    @_(r'\\\0') # error
-    def NULLCHAR3(self, t):
-        # self._word += r"\n"
-        # self.error(t)
-        # self.errors = True
-        t.type = "ERROR"  
-        t.value = '"String contains escaped null character."'
-        self._word = '"'
-        self.begin(L.CoolLexer)
-        return t
+    # @_(r'\\\0') # error
+    # def NULLCHAR3(self, t):
+    #     # self._word += r"\n"
+    #     # self.error(t)
+    #     # self.errors = True
+    #     t.type = "ERROR"  
+    #     t.value = '"String contains escaped null character."'
+    #     self._word = '"'
+    #     self.begin(L.CoolLexer)
+    #     return t
 
-    @_(r'\\0') # error
-    def NULLCHAR2(self, t):
-        t.type = "ERROR"  
-        t.value = '"String contains escaped null character."'
-        self._word = '"'
-        self.begin(L.CoolLexer)
-        return t
+    # @_(r'\\0') # error
+    # def NULLCHAR2(self, t):
+    #     t.type = "ERROR"  
+    #     t.value = '"String contains escaped null character."'
+    #     self._word = '"'
+    #     self.begin(L.CoolLexer)
+    #     return t
 
     @_(r'\0') # error
     def NULLCHAR1(self, t):
         t.type = "ERROR" 
-        t.value = '"String contains escaped null character."'
+        t.value = '"String contains null character."'
         self._word = '"'
-        self.begin(L.CoolLexer)
+        self.errors = True
+        # self.begin(L.CoolLexer)
         return t
     
     # @_(r'[^"]$') # EOF error
-    @_(r'\.\Z')
+    @_(r'\.\Z', r'.\Z', r'\\.\Z', r'\\\.\Z')
     def EOFERROR1(self, t):
-        print("ola")
+        print("ola1")
         t.type = "ERROR"
         t.value = '"EOF in string constant"'
         self._word = '"'
         self.begin(L.CoolLexer)
         return t
 
-    @_(r'$', r'\$')
-    def EOFERROR1(self, t):
-        print("ola")
+    # @_(r'$', r'\$', r'\\$', r'\\\$')
+    # def EOFERROR2(self, t):
+    #     print("ola")
+    #     t.type = "ERROR"
+    #     t.value = '"EOF in string constant"'
+    #     self._word = '"'
+    #     self.begin(L.CoolLexer)
+    #     return t
+    @_(r'[^"]$', r'[^"]\$', r'[^"]\\$', r'[^"]\\\$')
+    def EOFERROR4(self, t):
+        print("ola4", t.value)
         t.type = "ERROR"
         t.value = '"EOF in string constant"'
         self._word = '"'
         self.begin(L.CoolLexer)
         return t
 
-    @_(r'.$', r'.\$')
-    def EOFERROR1(self, t):
-        print("ola")
-        t.type = "ERROR"
-        t.value = '"EOF in string constant"'
-        self._word = '"'
-        self.begin(L.CoolLexer)
-        return t
-
-    @_(r'.\Z')
-    def EOFERROR1(self, t):
-        print("ola")
-        t.type = "ERROR"
-        t.value = '"EOF in string constant"'
-        self._word = '"'
-        self.begin(L.CoolLexer)
-        return t
-
-    @_(r'\\.\Z') # EOF error
-    def EOFERROR2(self, t):
-        print("ola")
-        t.type = "ERROR"
-        t.value = '"EOF in string constant"'
-        self._word = '"'
-        self.begin(L.CoolLexer)
-        return t
-
-    @_(r'\\\.\Z') # EOF error
-    def EOFERROR2(self, t):
-        print("ola")
-        t.type = "ERROR"
-        t.value = '"EOF in string constant"'
-        self._word = '"'
-        self.begin(L.CoolLexer)
-        return t
+    # @_(r'.$', r'.\$', r'.\\$', r'.\\\$')
+    # def EOFERROR3(self, t):
+    #     print("ola3", t.value)
+    #     t.type = "ERROR"
+    #     t.value = '"EOF in string constant3"'
+    #     self._word = '"'
+    #     self.begin(L.CoolLexer)
+    #     return t
 
 
     @_(r'\\f')
@@ -213,11 +195,15 @@ class Stringg(Lexer):
             if len(self._word) == 1:
                 t.value = '""'
             self._word = '"'
-            self.errors = False
+            # self.errors = False
 
-        self.begin(L.CoolLexer) # FIN
-            
-        return t
+         # FIN
+        if not self.errors:
+            self.begin(L.CoolLexer)
+            return t
+        else: 
+            self.errors = False
+            self.begin(L.CoolLexer)
         
     """"""
 
@@ -231,10 +217,10 @@ class Stringg(Lexer):
         # print(t.value)
         self._word += t.value#[1:2]
 
-    # @_(r'\\.') # \.
-    # def ONESLASHCHARACT(self, t):
-    #     # print(t.value)
-    #     self._word += t.value
+    @_(r'\\.') # \.
+    def ONESLASHCHARACT(self, t):
+        # print(t.value)
+        self._word += t.value
 
     @_(r'.')
     def CHARACT(self, t):

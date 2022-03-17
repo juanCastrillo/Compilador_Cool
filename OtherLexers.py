@@ -10,6 +10,15 @@ class Comment_Ml(Lexer):
     tokens = {}
     commentCount = 1
 
+    @_(r'[^"]$', r'[^"]\$', r'[^"]\\$', r'[^"]\\\$') # EOF
+    def EOFERROR4(self, t):
+        print("ola4", t.value)
+        t.type = "ERROR"
+        t.value = '"EOF in comment"'
+        self._word = '"'
+        self.begin(L.CoolLexer)
+        return t
+
     @_(r'\(\*')
     def ANOTHERONE(self, t):
         self.commentCount += 1
@@ -137,9 +146,9 @@ class Stringg(Lexer):
         self.errors = True
         # self.begin(L.CoolLexer)
         return t
-    
+
     # @_(r'[^"]$') # EOF error
-    @_(r'\.\Z', r'.\Z', r'\\.\Z', r'\\\.\Z')
+    @_(r'[^"]\Z', r'[^"]\\Z', r'[^"]\\\Z', r'[^"]\\\\Z')
     def EOFERROR1(self, t):
         print("ola1")
         t.type = "ERROR"
@@ -156,14 +165,14 @@ class Stringg(Lexer):
     #     self._word = '"'
     #     self.begin(L.CoolLexer)
     #     return t
-    @_(r'[^"]$', r'[^"]\$', r'[^"]\\$', r'[^"]\\\$')
-    def EOFERROR4(self, t):
-        print("ola4", t.value)
-        t.type = "ERROR"
-        t.value = '"EOF in string constant"'
-        self._word = '"'
-        self.begin(L.CoolLexer)
-        return t
+    # @_(r'[^"]$', r'[^"]\$', r'[^"]\\$', r'[^"]\\\$')
+    # def EOFERROR4(self, t):
+    #     print("ola4", t.value)
+    #     t.type = "ERROR"
+    #     t.value = '"EOF in string constant"'
+    #     self._word = '"'
+    #     self.begin(L.CoolLexer)
+    #     return t
 
     # @_(r'.$', r'.\$', r'.\\$', r'.\\\$')
     # def EOFERROR3(self, t):
@@ -175,9 +184,18 @@ class Stringg(Lexer):
     #     return t
 
 
-    @_(r'\\f')
+    @_(r'\f|\\f')
     def FORMFEED(self, t):
         self._word += r"\f"
+
+    # \f\022\013
+    @_(r'\022|\\022')
+    def BLANK1(self, t):
+        self._word += r"\022"
+
+    @_(r'\013|\\013')
+    def BLANK2(self, t):
+        self._word += r"\013"
 
     @_(r'"')
     def STR_CONST(self, t):

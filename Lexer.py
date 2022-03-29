@@ -7,7 +7,7 @@ import re
 import sys
 
 """
-TODO stringcomment.cool
+
 """
 class CoolLexer(Lexer): 
     '''
@@ -122,7 +122,7 @@ class CoolLexer(Lexer):
     def NUMBER(self, t): return t
 
     """"""
-    # @_(r'_|\!|\#|\$|\%|\^|\&|>|?|\`|\[|\]|\\\|\|') # TODO Fix
+    # @_(r'_|\!|\#|\$|\%|\^|\&|>|?|\`|\[|\]|\\\|\|')
     @_(r'[_!#$%^&>?`[\]\\|]|\\\\')
     def STRANGESYMBOLS(self, t): 
         t.type = "ERROR"

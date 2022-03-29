@@ -1,0 +1,185 @@
+Grammar:
+
+Rule 0     S' -> statement
+Rule 1     statement -> expr
+Rule 2     statement -> NAME = expr
+Rule 3     expr -> NUMBER
+Rule 4     expr -> expr * expr
+Rule 5     expr -> expr - expr
+Rule 6     expr -> expr + expr
+
+Terminals, with rules where they appear:
+
+*                    : 4
++                    : 6
+-                    : 5
+=                    : 2
+NAME                 : 2
+NUMBER               : 3
+error                : 
+
+Nonterminals, with rules where they appear:
+
+expr                 : 1 2 4 4 5 5 6 6
+statement            : 0
+
+
+state 0
+
+    (0) S' -> . statement
+    (1) statement -> . expr
+    (2) statement -> . NAME = expr
+    (3) expr -> . NUMBER
+    (4) expr -> . expr * expr
+    (5) expr -> . expr - expr
+    (6) expr -> . expr + expr
+    NAME            shift and go to state 3
+    NUMBER          shift and go to state 4
+
+    statement                      shift and go to state 1
+    expr                           shift and go to state 2
+
+state 1
+
+    (0) S' -> statement .
+
+
+state 2
+
+    (1) statement -> expr .
+    (4) expr -> expr . * expr
+    (5) expr -> expr . - expr
+    (6) expr -> expr . + expr
+    $end            reduce using rule 1 (statement -> expr .)
+    *               shift and go to state 5
+    -               shift and go to state 6
+    +               shift and go to state 7
+
+
+state 3
+
+    (2) statement -> NAME . = expr
+    =               shift and go to state 8
+
+
+state 4
+
+    (3) expr -> NUMBER .
+    *               reduce using rule 3 (expr -> NUMBER .)
+    -               reduce using rule 3 (expr -> NUMBER .)
+    +               reduce using rule 3 (expr -> NUMBER .)
+    $end            reduce using rule 3 (expr -> NUMBER .)
+
+
+state 5
+
+    (4) expr -> expr * . expr
+    (3) expr -> . NUMBER
+    (4) expr -> . expr * expr
+    (5) expr -> . expr - expr
+    (6) expr -> . expr + expr
+    NUMBER          shift and go to state 4
+
+    expr                           shift and go to state 9
+
+state 6
+
+    (5) expr -> expr - . expr
+    (3) expr -> . NUMBER
+    (4) expr -> . expr * expr
+    (5) expr -> . expr - expr
+    (6) expr -> . expr + expr
+    NUMBER          shift and go to state 4
+
+    expr                           shift and go to state 10
+
+state 7
+
+    (6) expr -> expr + . expr
+    (3) expr -> . NUMBER
+    (4) expr -> . expr * expr
+    (5) expr -> . expr - expr
+    (6) expr -> . expr + expr
+    NUMBER          shift and go to state 4
+
+    expr                           shift and go to state 11
+
+state 8
+
+    (2) statement -> NAME = . expr
+    (3) expr -> . NUMBER
+    (4) expr -> . expr * expr
+    (5) expr -> . expr - expr
+    (6) expr -> . expr + expr
+    NUMBER          shift and go to state 4
+
+    expr                           shift and go to state 12
+
+state 9
+
+    (4) expr -> expr * expr .
+    (4) expr -> expr . * expr
+    (5) expr -> expr . - expr
+    (6) expr -> expr . + expr
+  ! shift/reduce conflict for * resolved as shift
+  ! shift/reduce conflict for - resolved as shift
+  ! shift/reduce conflict for + resolved as shift
+    $end            reduce using rule 4 (expr -> expr * expr .)
+    *               shift and go to state 5
+    -               shift and go to state 6
+    +               shift and go to state 7
+
+
+state 10
+
+    (5) expr -> expr - expr .
+    (4) expr -> expr . * expr
+    (5) expr -> expr . - expr
+    (6) expr -> expr . + expr
+  ! shift/reduce conflict for * resolved as shift
+  ! shift/reduce conflict for - resolved as shift
+  ! shift/reduce conflict for + resolved as shift
+    $end            reduce using rule 5 (expr -> expr - expr .)
+    *               shift and go to state 5
+    -               shift and go to state 6
+    +               shift and go to state 7
+
+
+state 11
+
+    (6) expr -> expr + expr .
+    (4) expr -> expr . * expr
+    (5) expr -> expr . - expr
+    (6) expr -> expr . + expr
+  ! shift/reduce conflict for * resolved as shift
+  ! shift/reduce conflict for - resolved as shift
+  ! shift/reduce conflict for + resolved as shift
+    $end            reduce using rule 6 (expr -> expr + expr .)
+    *               shift and go to state 5
+    -               shift and go to state 6
+    +               shift and go to state 7
+
+
+state 12
+
+    (2) statement -> NAME = expr .
+    (4) expr -> expr . * expr
+    (5) expr -> expr . - expr
+    (6) expr -> expr . + expr
+    $end            reduce using rule 2 (statement -> NAME = expr .)
+    *               shift and go to state 5
+    -               shift and go to state 6
+    +               shift and go to state 7
+
+
+Conflicts:
+
+shift/reduce conflict for * in state 9 resolved as shift
+shift/reduce conflict for - in state 9 resolved as shift
+shift/reduce conflict for + in state 9 resolved as shift
+shift/reduce conflict for * in state 10 resolved as shift
+shift/reduce conflict for - in state 10 resolved as shift
+shift/reduce conflict for + in state 10 resolved as shift
+shift/reduce conflict for * in state 11 resolved as shift
+shift/reduce conflict for - in state 11 resolved as shift
+shift/reduce conflict for + in state 11 resolved as shift

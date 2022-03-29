@@ -3,6 +3,8 @@ import re
 import sys
 from colorama import init
 from termcolor import colored
+
+from Parser import CoolParser
 init()
 
 
@@ -13,7 +15,7 @@ from Lexer import *
 #from Parser import *
 from Clases import *
 
-PRACTICA = "01" # Practica que hay que evaluar
+PRACTICA = "02" # Practica que hay que evaluar
 DEBUG = True   # Decir si se lanzan mensajes de debug
 NUMLINEAS = 3   # Numero de lineas que se muestran antes y después de la no coincidencia
 sys.path.append(DIRECTORIO)
@@ -29,7 +31,7 @@ if True:
     for fich in TESTS:
         lexer = CoolLexer()
         # if "escapedeof.cool" != fich: continue
-        if "s34.test.cool" != fich: continue
+        # if "s34.test.cool" != fich: continue
         f = open(os.path.join(DIR, fich), 'r', newline='')
         g = open(os.path.join(DIR, fich + '.out'), 'r', newline='')
         if os.path.isfile(os.path.join(DIR, fich)+'.nuestro'):

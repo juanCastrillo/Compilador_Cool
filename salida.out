@@ -1,185 +1,4040 @@
 Grammar:
 
-Rule 0     S' -> statement
-Rule 1     statement -> expr
-Rule 2     statement -> NAME = expr
-Rule 3     expr -> NUMBER
-Rule 4     expr -> expr * expr
-Rule 5     expr -> expr - expr
-Rule 6     expr -> expr + expr
+Rule 0     S' -> program
+Rule 1     program -> class_list
+Rule 2     class_list -> clas ;
+Rule 3     class_list -> class_list clas ;
+Rule 4     clas -> CLASS TYPEID { error }
+Rule 5     clas -> CLASS TYPEID INHERITS TYPEID { feature_list }
+Rule 6     clas -> CLASS TYPEID { feature_list }
+Rule 7     feature_list -> feature_list feature error
+Rule 8     feature_list -> feature error
+Rule 9     feature_list -> error ;
+Rule 10    feature_list -> feature_list feature ;
+Rule 11    feature_list -> feature ;
+Rule 12    feature -> OBJECTID ( ) : TYPEID { error }
+Rule 13    feature -> OBJECTID : error
+Rule 14    feature -> { error }
+Rule 15    feature -> OBJECTID : TYPEID
+Rule 16    feature -> OBJECTID : TYPEID ASSIGN expr  [precedence=right, level=1]
+Rule 17    feature -> OBJECTID ( formal_list ) : TYPEID { expr }
+Rule 18    feature -> OBJECTID ( ) : TYPEID { expr }
+Rule 19    formal_list -> formal_list error formal
+Rule 20    formal_list -> formal_list , formal
+Rule 21    formal_list -> formal
+Rule 22    formal -> OBJECTID : TYPEID
+Rule 23    expr -> CASE error OF case_list ESAC
+Rule 24    expr -> IF expr THEN expr error FI
+Rule 25    expr -> IF expr THEN expr ELSE expr error
+Rule 26    expr -> BOOL_CONST
+Rule 27    expr -> STR_CONST
+Rule 28    expr -> INT_CONST
+Rule 29    expr -> OBJECTID
+Rule 30    expr -> ( expr )
+Rule 31    expr -> NOT expr  [precedence=left, level=2]
+Rule 32    expr -> expr = expr  [precedence=left, level=3]
+Rule 33    expr -> expr LE expr  [precedence=left, level=3]
+Rule 34    expr -> expr < expr  [precedence=left, level=3]
+Rule 35    expr -> ~ expr  [precedence=left, level=7]
+Rule 36    expr -> expr / expr  [precedence=left, level=5]
+Rule 37    expr -> expr * expr  [precedence=left, level=5]
+Rule 38    expr -> expr - expr  [precedence=left, level=4]
+Rule 39    expr -> expr + expr  [precedence=left, level=4]
+Rule 40    expr -> ISVOID expr  [precedence=left, level=6]
+Rule 41    expr -> NEW TYPEID
+Rule 42    expr -> CASE expr OF case_list ESAC
+Rule 43    expr -> LET assign_list IN expr
+Rule 44    expr -> { expresion_list }
+Rule 45    expr -> WHILE expr LOOP expr POOL
+Rule 46    expr -> IF expr THEN expr ELSE expr FI
+Rule 47    expr -> OBJECTID ( arg_list )
+Rule 48    expr -> expr @ TYPEID . OBJECTID ( arg_list )
+Rule 49    expr -> expr . OBJECTID ( arg_list )
+Rule 50    expr -> expr @ TYPEID . OBJECTID ( )
+Rule 51    expr -> expr . OBJECTID ( )
+Rule 52    expr -> OBJECTID ( )
+Rule 53    expr -> OBJECTID ASSIGN expr  [precedence=right, level=1]
+Rule 54    arg_list -> arg_list , expr
+Rule 55    arg_list -> expr
+Rule 56    expresion_list -> error ;
+Rule 57    expresion_list -> expresion_list expr ;
+Rule 58    expresion_list -> expr ;
+Rule 59    assign_list -> assign_list , OBJECTID : TYPEID ASSIGN error
+Rule 60    assign_list -> OBJECTID : TYPEID ASSIGN error
+Rule 61    assign_list -> assign_list , OBJECTID : TYPEID ASSIGN expr  [precedence=right, level=1]
+Rule 62    assign_list -> assign_list , OBJECTID : TYPEID
+Rule 63    assign_list -> OBJECTID : TYPEID
+Rule 64    assign_list -> OBJECTID : TYPEID ASSIGN expr  [precedence=right, level=1]
+Rule 65    case_list -> case_list OBJECTID : TYPEID DARROW expr ;
+Rule 66    case_list -> OBJECTID : TYPEID DARROW expr ;
+
+Unused terminals:
+
+    NUMBER
 
 Terminals, with rules where they appear:
 
-*                    : 4
-+                    : 6
--                    : 5
-=                    : 2
-NAME                 : 2
-NUMBER               : 3
-error                : 
+(                    : 12 17 18 30 47 48 49 50 51 52
+)                    : 12 17 18 30 47 48 49 50 51 52
+*                    : 37
++                    : 39
+,                    : 20 54 59 61 62
+-                    : 38
+.                    : 48 49 50 51
+/                    : 36
+:                    : 12 13 15 16 17 18 22 59 60 61 62 63 64 65 66
+;                    : 2 3 9 10 11 56 57 58 65 66
+<                    : 34
+=                    : 32
+@                    : 48 50
+ASSIGN               : 16 53 59 60 61 64
+BOOL_CONST           : 26
+CASE                 : 23 42
+CLASS                : 4 5 6
+DARROW               : 65 66
+ELSE                 : 25 46
+ESAC                 : 23 42
+FI                   : 24 46
+IF                   : 24 25 46
+IN                   : 43
+INHERITS             : 5
+INT_CONST            : 28
+ISVOID               : 40
+LE                   : 33
+LET                  : 43
+LOOP                 : 45
+NEW                  : 41
+NOT                  : 31
+NUMBER               : 
+OBJECTID             : 12 13 15 16 17 18 22 29 47 48 49 50 51 52 53 59 60 61 62 63 64 65 66
+OF                   : 23 42
+POOL                 : 45
+STR_CONST            : 27
+THEN                 : 24 25 46
+TYPEID               : 4 5 5 6 12 15 16 17 18 22 41 48 50 59 60 61 62 63 64 65 66
+WHILE                : 45
+error                : 4 7 8 9 12 13 14 19 23 24 25 56 59 60
+{                    : 4 5 6 12 14 17 18 44
+}                    : 4 5 6 12 14 17 18 44
+~                    : 35
 
 Nonterminals, with rules where they appear:
 
-expr                 : 1 2 4 4 5 5 6 6
-statement            : 0
+arg_list             : 47 48 49 54
+assign_list          : 43 59 61 62
+case_list            : 23 42 65
+clas                 : 2 3
+class_list           : 1 3
+expr                 : 16 17 18 24 24 25 25 25 30 31 32 32 33 33 34 34 35 36 36 37 37 38 38 39 39 40 42 43 45 45 46 46 46 48 49 50 51 53 54 55 57 58 61 64 65 66
+expresion_list       : 44 57
+feature              : 7 8 10 11
+feature_list         : 5 6 7 10
+formal               : 19 20 21
+formal_list          : 17 19 20
+program              : 0
 
 
 state 0
 
-    (0) S' -> . statement
-    (1) statement -> . expr
-    (2) statement -> . NAME = expr
-    (3) expr -> . NUMBER
-    (4) expr -> . expr * expr
-    (5) expr -> . expr - expr
-    (6) expr -> . expr + expr
-    NAME            shift and go to state 3
-    NUMBER          shift and go to state 4
+    (0) S' -> . program
+    (1) program -> . class_list
+    (2) class_list -> . clas ;
+    (3) class_list -> . class_list clas ;
+    (4) clas -> . CLASS TYPEID { error }
+    (5) clas -> . CLASS TYPEID INHERITS TYPEID { feature_list }
+    (6) clas -> . CLASS TYPEID { feature_list }
+    CLASS           shift and go to state 4
 
-    statement                      shift and go to state 1
-    expr                           shift and go to state 2
+    program                        shift and go to state 1
+    class_list                     shift and go to state 2
+    clas                           shift and go to state 3
 
 state 1
 
-    (0) S' -> statement .
+    (0) S' -> program .
 
 
 state 2
 
-    (1) statement -> expr .
-    (4) expr -> expr . * expr
-    (5) expr -> expr . - expr
-    (6) expr -> expr . + expr
-    $end            reduce using rule 1 (statement -> expr .)
-    *               shift and go to state 5
-    -               shift and go to state 6
-    +               shift and go to state 7
+    (1) program -> class_list .
+    (3) class_list -> class_list . clas ;
+    (4) clas -> . CLASS TYPEID { error }
+    (5) clas -> . CLASS TYPEID INHERITS TYPEID { feature_list }
+    (6) clas -> . CLASS TYPEID { feature_list }
+    $end            reduce using rule 1 (program -> class_list .)
+    CLASS           shift and go to state 4
 
+    clas                           shift and go to state 5
 
 state 3
 
-    (2) statement -> NAME . = expr
-    =               shift and go to state 8
+    (2) class_list -> clas . ;
+    ;               shift and go to state 6
 
 
 state 4
 
-    (3) expr -> NUMBER .
-    *               reduce using rule 3 (expr -> NUMBER .)
-    -               reduce using rule 3 (expr -> NUMBER .)
-    +               reduce using rule 3 (expr -> NUMBER .)
-    $end            reduce using rule 3 (expr -> NUMBER .)
+    (4) clas -> CLASS . TYPEID { error }
+    (5) clas -> CLASS . TYPEID INHERITS TYPEID { feature_list }
+    (6) clas -> CLASS . TYPEID { feature_list }
+    TYPEID          shift and go to state 7
 
 
 state 5
 
-    (4) expr -> expr * . expr
-    (3) expr -> . NUMBER
-    (4) expr -> . expr * expr
-    (5) expr -> . expr - expr
-    (6) expr -> . expr + expr
-    NUMBER          shift and go to state 4
+    (3) class_list -> class_list clas . ;
+    ;               shift and go to state 8
 
-    expr                           shift and go to state 9
 
 state 6
 
-    (5) expr -> expr - . expr
-    (3) expr -> . NUMBER
-    (4) expr -> . expr * expr
-    (5) expr -> . expr - expr
-    (6) expr -> . expr + expr
-    NUMBER          shift and go to state 4
+    (2) class_list -> clas ; .
+    CLASS           reduce using rule 2 (class_list -> clas ; .)
+    $end            reduce using rule 2 (class_list -> clas ; .)
 
-    expr                           shift and go to state 10
 
 state 7
 
-    (6) expr -> expr + . expr
-    (3) expr -> . NUMBER
-    (4) expr -> . expr * expr
-    (5) expr -> . expr - expr
-    (6) expr -> . expr + expr
-    NUMBER          shift and go to state 4
+    (4) clas -> CLASS TYPEID . { error }
+    (5) clas -> CLASS TYPEID . INHERITS TYPEID { feature_list }
+    (6) clas -> CLASS TYPEID . { feature_list }
+    {               shift and go to state 9
+    INHERITS        shift and go to state 10
 
-    expr                           shift and go to state 11
 
 state 8
 
-    (2) statement -> NAME = . expr
-    (3) expr -> . NUMBER
-    (4) expr -> . expr * expr
-    (5) expr -> . expr - expr
-    (6) expr -> . expr + expr
-    NUMBER          shift and go to state 4
+    (3) class_list -> class_list clas ; .
+    CLASS           reduce using rule 3 (class_list -> class_list clas ; .)
+    $end            reduce using rule 3 (class_list -> class_list clas ; .)
 
-    expr                           shift and go to state 12
 
 state 9
 
-    (4) expr -> expr * expr .
-    (4) expr -> expr . * expr
-    (5) expr -> expr . - expr
-    (6) expr -> expr . + expr
-  ! shift/reduce conflict for * resolved as shift
-  ! shift/reduce conflict for - resolved as shift
-  ! shift/reduce conflict for + resolved as shift
-    $end            reduce using rule 4 (expr -> expr * expr .)
-    *               shift and go to state 5
-    -               shift and go to state 6
-    +               shift and go to state 7
+    (4) clas -> CLASS TYPEID { . error }
+    (6) clas -> CLASS TYPEID { . feature_list }
+    (7) feature_list -> . feature_list feature error
+    (8) feature_list -> . feature error
+    (9) feature_list -> . error ;
+    (10) feature_list -> . feature_list feature ;
+    (11) feature_list -> . feature ;
+    (12) feature -> . OBJECTID ( ) : TYPEID { error }
+    (13) feature -> . OBJECTID : error
+    (14) feature -> . { error }
+    (15) feature -> . OBJECTID : TYPEID
+    (16) feature -> . OBJECTID : TYPEID ASSIGN expr
+    (17) feature -> . OBJECTID ( formal_list ) : TYPEID { expr }
+    (18) feature -> . OBJECTID ( ) : TYPEID { expr }
+    error           shift and go to state 12
+    OBJECTID        shift and go to state 15
+    {               shift and go to state 11
 
+    feature_list                   shift and go to state 13
+    feature                        shift and go to state 14
 
 state 10
 
-    (5) expr -> expr - expr .
-    (4) expr -> expr . * expr
-    (5) expr -> expr . - expr
-    (6) expr -> expr . + expr
-  ! shift/reduce conflict for * resolved as shift
-  ! shift/reduce conflict for - resolved as shift
-  ! shift/reduce conflict for + resolved as shift
-    $end            reduce using rule 5 (expr -> expr - expr .)
-    *               shift and go to state 5
-    -               shift and go to state 6
-    +               shift and go to state 7
+    (5) clas -> CLASS TYPEID INHERITS . TYPEID { feature_list }
+    TYPEID          shift and go to state 16
 
 
 state 11
 
-    (6) expr -> expr + expr .
-    (4) expr -> expr . * expr
-    (5) expr -> expr . - expr
-    (6) expr -> expr . + expr
-  ! shift/reduce conflict for * resolved as shift
-  ! shift/reduce conflict for - resolved as shift
-  ! shift/reduce conflict for + resolved as shift
-    $end            reduce using rule 6 (expr -> expr + expr .)
-    *               shift and go to state 5
-    -               shift and go to state 6
-    +               shift and go to state 7
+    (14) feature -> { . error }
+    error           shift and go to state 17
 
 
 state 12
 
-    (2) statement -> NAME = expr .
-    (4) expr -> expr . * expr
-    (5) expr -> expr . - expr
-    (6) expr -> expr . + expr
-    $end            reduce using rule 2 (statement -> NAME = expr .)
-    *               shift and go to state 5
-    -               shift and go to state 6
-    +               shift and go to state 7
+    (4) clas -> CLASS TYPEID { error . }
+    (9) feature_list -> error . ;
+    }               shift and go to state 18
+    ;               shift and go to state 19
+
+
+state 13
+
+    (6) clas -> CLASS TYPEID { feature_list . }
+    (7) feature_list -> feature_list . feature error
+    (10) feature_list -> feature_list . feature ;
+    (12) feature -> . OBJECTID ( ) : TYPEID { error }
+    (13) feature -> . OBJECTID : error
+    (14) feature -> . { error }
+    (15) feature -> . OBJECTID : TYPEID
+    (16) feature -> . OBJECTID : TYPEID ASSIGN expr
+    (17) feature -> . OBJECTID ( formal_list ) : TYPEID { expr }
+    (18) feature -> . OBJECTID ( ) : TYPEID { expr }
+    }               shift and go to state 20
+    OBJECTID        shift and go to state 15
+    {               shift and go to state 11
+
+    feature                        shift and go to state 21
+
+state 14
+
+    (8) feature_list -> feature . error
+    (11) feature_list -> feature . ;
+    error           shift and go to state 22
+    ;               shift and go to state 23
+
+
+state 15
+
+    (12) feature -> OBJECTID . ( ) : TYPEID { error }
+    (13) feature -> OBJECTID . : error
+    (15) feature -> OBJECTID . : TYPEID
+    (16) feature -> OBJECTID . : TYPEID ASSIGN expr
+    (17) feature -> OBJECTID . ( formal_list ) : TYPEID { expr }
+    (18) feature -> OBJECTID . ( ) : TYPEID { expr }
+    (               shift and go to state 24
+    :               shift and go to state 25
+
+
+state 16
+
+    (5) clas -> CLASS TYPEID INHERITS TYPEID . { feature_list }
+    {               shift and go to state 26
+
+
+state 17
+
+    (14) feature -> { error . }
+    }               shift and go to state 27
+
+
+state 18
+
+    (4) clas -> CLASS TYPEID { error } .
+    ;               reduce using rule 4 (clas -> CLASS TYPEID { error } .)
+
+
+state 19
+
+    (9) feature_list -> error ; .
+    }               reduce using rule 9 (feature_list -> error ; .)
+    OBJECTID        reduce using rule 9 (feature_list -> error ; .)
+    {               reduce using rule 9 (feature_list -> error ; .)
+
+
+state 20
+
+    (6) clas -> CLASS TYPEID { feature_list } .
+    ;               reduce using rule 6 (clas -> CLASS TYPEID { feature_list } .)
+
+
+state 21
+
+    (7) feature_list -> feature_list feature . error
+    (10) feature_list -> feature_list feature . ;
+    error           shift and go to state 28
+    ;               shift and go to state 29
+
+
+state 22
+
+    (8) feature_list -> feature error .
+    }               reduce using rule 8 (feature_list -> feature error .)
+    OBJECTID        reduce using rule 8 (feature_list -> feature error .)
+    {               reduce using rule 8 (feature_list -> feature error .)
+
+
+state 23
+
+    (11) feature_list -> feature ; .
+    }               reduce using rule 11 (feature_list -> feature ; .)
+    OBJECTID        reduce using rule 11 (feature_list -> feature ; .)
+    {               reduce using rule 11 (feature_list -> feature ; .)
+
+
+state 24
+
+    (12) feature -> OBJECTID ( . ) : TYPEID { error }
+    (17) feature -> OBJECTID ( . formal_list ) : TYPEID { expr }
+    (18) feature -> OBJECTID ( . ) : TYPEID { expr }
+    (19) formal_list -> . formal_list error formal
+    (20) formal_list -> . formal_list , formal
+    (21) formal_list -> . formal
+    (22) formal -> . OBJECTID : TYPEID
+    )               shift and go to state 31
+    OBJECTID        shift and go to state 30
+
+    formal_list                    shift and go to state 32
+    formal                         shift and go to state 33
+
+state 25
+
+    (13) feature -> OBJECTID : . error
+    (15) feature -> OBJECTID : . TYPEID
+    (16) feature -> OBJECTID : . TYPEID ASSIGN expr
+    error           shift and go to state 34
+    TYPEID          shift and go to state 35
+
+
+state 26
+
+    (5) clas -> CLASS TYPEID INHERITS TYPEID { . feature_list }
+    (7) feature_list -> . feature_list feature error
+    (8) feature_list -> . feature error
+    (9) feature_list -> . error ;
+    (10) feature_list -> . feature_list feature ;
+    (11) feature_list -> . feature ;
+    (12) feature -> . OBJECTID ( ) : TYPEID { error }
+    (13) feature -> . OBJECTID : error
+    (14) feature -> . { error }
+    (15) feature -> . OBJECTID : TYPEID
+    (16) feature -> . OBJECTID : TYPEID ASSIGN expr
+    (17) feature -> . OBJECTID ( formal_list ) : TYPEID { expr }
+    (18) feature -> . OBJECTID ( ) : TYPEID { expr }
+    error           shift and go to state 37
+    OBJECTID        shift and go to state 15
+    {               shift and go to state 11
+
+    feature_list                   shift and go to state 36
+    feature                        shift and go to state 14
+
+state 27
+
+    (14) feature -> { error } .
+    error           reduce using rule 14 (feature -> { error } .)
+    ;               reduce using rule 14 (feature -> { error } .)
+
+
+state 28
+
+    (7) feature_list -> feature_list feature error .
+    }               reduce using rule 7 (feature_list -> feature_list feature error .)
+    OBJECTID        reduce using rule 7 (feature_list -> feature_list feature error .)
+    {               reduce using rule 7 (feature_list -> feature_list feature error .)
+
+
+state 29
+
+    (10) feature_list -> feature_list feature ; .
+    }               reduce using rule 10 (feature_list -> feature_list feature ; .)
+    OBJECTID        reduce using rule 10 (feature_list -> feature_list feature ; .)
+    {               reduce using rule 10 (feature_list -> feature_list feature ; .)
+
+
+state 30
+
+    (22) formal -> OBJECTID . : TYPEID
+    :               shift and go to state 38
+
+
+state 31
+
+    (12) feature -> OBJECTID ( ) . : TYPEID { error }
+    (18) feature -> OBJECTID ( ) . : TYPEID { expr }
+    :               shift and go to state 39
+
+
+state 32
+
+    (17) feature -> OBJECTID ( formal_list . ) : TYPEID { expr }
+    (19) formal_list -> formal_list . error formal
+    (20) formal_list -> formal_list . , formal
+    )               shift and go to state 40
+    error           shift and go to state 41
+    ,               shift and go to state 42
+
+
+state 33
+
+    (21) formal_list -> formal .
+    )               reduce using rule 21 (formal_list -> formal .)
+    error           reduce using rule 21 (formal_list -> formal .)
+    ,               reduce using rule 21 (formal_list -> formal .)
+
+
+state 34
+
+    (13) feature -> OBJECTID : error .
+    error           reduce using rule 13 (feature -> OBJECTID : error .)
+    ;               reduce using rule 13 (feature -> OBJECTID : error .)
+
+
+state 35
+
+    (15) feature -> OBJECTID : TYPEID .
+    (16) feature -> OBJECTID : TYPEID . ASSIGN expr
+    error           reduce using rule 15 (feature -> OBJECTID : TYPEID .)
+    ;               reduce using rule 15 (feature -> OBJECTID : TYPEID .)
+    ASSIGN          shift and go to state 43
+
+
+state 36
+
+    (5) clas -> CLASS TYPEID INHERITS TYPEID { feature_list . }
+    (7) feature_list -> feature_list . feature error
+    (10) feature_list -> feature_list . feature ;
+    (12) feature -> . OBJECTID ( ) : TYPEID { error }
+    (13) feature -> . OBJECTID : error
+    (14) feature -> . { error }
+    (15) feature -> . OBJECTID : TYPEID
+    (16) feature -> . OBJECTID : TYPEID ASSIGN expr
+    (17) feature -> . OBJECTID ( formal_list ) : TYPEID { expr }
+    (18) feature -> . OBJECTID ( ) : TYPEID { expr }
+    }               shift and go to state 44
+    OBJECTID        shift and go to state 15
+    {               shift and go to state 11
+
+    feature                        shift and go to state 21
+
+state 37
+
+    (9) feature_list -> error . ;
+    ;               shift and go to state 19
+
+
+state 38
+
+    (22) formal -> OBJECTID : . TYPEID
+    TYPEID          shift and go to state 45
+
+
+state 39
+
+    (12) feature -> OBJECTID ( ) : . TYPEID { error }
+    (18) feature -> OBJECTID ( ) : . TYPEID { expr }
+    TYPEID          shift and go to state 46
+
+
+state 40
+
+    (17) feature -> OBJECTID ( formal_list ) . : TYPEID { expr }
+    :               shift and go to state 47
+
+
+state 41
+
+    (19) formal_list -> formal_list error . formal
+    (22) formal -> . OBJECTID : TYPEID
+    OBJECTID        shift and go to state 30
+
+    formal                         shift and go to state 48
+
+state 42
+
+    (20) formal_list -> formal_list , . formal
+    (22) formal -> . OBJECTID : TYPEID
+    OBJECTID        shift and go to state 30
+
+    formal                         shift and go to state 49
+
+state 43
+
+    (16) feature -> OBJECTID : TYPEID ASSIGN . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 51
+
+state 44
+
+    (5) clas -> CLASS TYPEID INHERITS TYPEID { feature_list } .
+    ;               reduce using rule 5 (clas -> CLASS TYPEID INHERITS TYPEID { feature_list } .)
+
+
+state 45
+
+    (22) formal -> OBJECTID : TYPEID .
+    )               reduce using rule 22 (formal -> OBJECTID : TYPEID .)
+    error           reduce using rule 22 (formal -> OBJECTID : TYPEID .)
+    ,               reduce using rule 22 (formal -> OBJECTID : TYPEID .)
+
+
+state 46
+
+    (12) feature -> OBJECTID ( ) : TYPEID . { error }
+    (18) feature -> OBJECTID ( ) : TYPEID . { expr }
+    {               shift and go to state 65
+
+
+state 47
+
+    (17) feature -> OBJECTID ( formal_list ) : . TYPEID { expr }
+    TYPEID          shift and go to state 66
+
+
+state 48
+
+    (19) formal_list -> formal_list error formal .
+    )               reduce using rule 19 (formal_list -> formal_list error formal .)
+    error           reduce using rule 19 (formal_list -> formal_list error formal .)
+    ,               reduce using rule 19 (formal_list -> formal_list error formal .)
+
+
+state 49
+
+    (20) formal_list -> formal_list , formal .
+    )               reduce using rule 20 (formal_list -> formal_list , formal .)
+    error           reduce using rule 20 (formal_list -> formal_list , formal .)
+    ,               reduce using rule 20 (formal_list -> formal_list , formal .)
+
+
+state 50
+
+    (29) expr -> OBJECTID .
+    (47) expr -> OBJECTID . ( arg_list )
+    (52) expr -> OBJECTID . ( )
+    (53) expr -> OBJECTID . ASSIGN expr
+    =               reduce using rule 29 (expr -> OBJECTID .)
+    LE              reduce using rule 29 (expr -> OBJECTID .)
+    <               reduce using rule 29 (expr -> OBJECTID .)
+    /               reduce using rule 29 (expr -> OBJECTID .)
+    *               reduce using rule 29 (expr -> OBJECTID .)
+    -               reduce using rule 29 (expr -> OBJECTID .)
+    +               reduce using rule 29 (expr -> OBJECTID .)
+    @               reduce using rule 29 (expr -> OBJECTID .)
+    .               reduce using rule 29 (expr -> OBJECTID .)
+    error           reduce using rule 29 (expr -> OBJECTID .)
+    ;               reduce using rule 29 (expr -> OBJECTID .)
+    OF              reduce using rule 29 (expr -> OBJECTID .)
+    THEN            reduce using rule 29 (expr -> OBJECTID .)
+    )               reduce using rule 29 (expr -> OBJECTID .)
+    LOOP            reduce using rule 29 (expr -> OBJECTID .)
+    }               reduce using rule 29 (expr -> OBJECTID .)
+    ,               reduce using rule 29 (expr -> OBJECTID .)
+    ELSE            reduce using rule 29 (expr -> OBJECTID .)
+    POOL            reduce using rule 29 (expr -> OBJECTID .)
+    FI              reduce using rule 29 (expr -> OBJECTID .)
+    IN              reduce using rule 29 (expr -> OBJECTID .)
+    (               shift and go to state 67
+    ASSIGN          shift and go to state 68
+
+
+state 51
+
+    (16) feature -> OBJECTID : TYPEID ASSIGN expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    error           reduce using rule 16 (feature -> OBJECTID : TYPEID ASSIGN expr .)
+    ;               reduce using rule 16 (feature -> OBJECTID : TYPEID ASSIGN expr .)
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 52
+
+    (23) expr -> CASE . error OF case_list ESAC
+    (42) expr -> CASE . expr OF case_list ESAC
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    error           shift and go to state 78
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 79
+
+state 53
+
+    (24) expr -> IF . expr THEN expr error FI
+    (25) expr -> IF . expr THEN expr ELSE expr error
+    (46) expr -> IF . expr THEN expr ELSE expr FI
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 80
+
+state 54
+
+    (26) expr -> BOOL_CONST .
+    =               reduce using rule 26 (expr -> BOOL_CONST .)
+    LE              reduce using rule 26 (expr -> BOOL_CONST .)
+    <               reduce using rule 26 (expr -> BOOL_CONST .)
+    /               reduce using rule 26 (expr -> BOOL_CONST .)
+    *               reduce using rule 26 (expr -> BOOL_CONST .)
+    -               reduce using rule 26 (expr -> BOOL_CONST .)
+    +               reduce using rule 26 (expr -> BOOL_CONST .)
+    @               reduce using rule 26 (expr -> BOOL_CONST .)
+    .               reduce using rule 26 (expr -> BOOL_CONST .)
+    error           reduce using rule 26 (expr -> BOOL_CONST .)
+    ;               reduce using rule 26 (expr -> BOOL_CONST .)
+    OF              reduce using rule 26 (expr -> BOOL_CONST .)
+    THEN            reduce using rule 26 (expr -> BOOL_CONST .)
+    )               reduce using rule 26 (expr -> BOOL_CONST .)
+    LOOP            reduce using rule 26 (expr -> BOOL_CONST .)
+    }               reduce using rule 26 (expr -> BOOL_CONST .)
+    ,               reduce using rule 26 (expr -> BOOL_CONST .)
+    ELSE            reduce using rule 26 (expr -> BOOL_CONST .)
+    POOL            reduce using rule 26 (expr -> BOOL_CONST .)
+    FI              reduce using rule 26 (expr -> BOOL_CONST .)
+    IN              reduce using rule 26 (expr -> BOOL_CONST .)
+
+
+state 55
+
+    (27) expr -> STR_CONST .
+    =               reduce using rule 27 (expr -> STR_CONST .)
+    LE              reduce using rule 27 (expr -> STR_CONST .)
+    <               reduce using rule 27 (expr -> STR_CONST .)
+    /               reduce using rule 27 (expr -> STR_CONST .)
+    *               reduce using rule 27 (expr -> STR_CONST .)
+    -               reduce using rule 27 (expr -> STR_CONST .)
+    +               reduce using rule 27 (expr -> STR_CONST .)
+    @               reduce using rule 27 (expr -> STR_CONST .)
+    .               reduce using rule 27 (expr -> STR_CONST .)
+    error           reduce using rule 27 (expr -> STR_CONST .)
+    ;               reduce using rule 27 (expr -> STR_CONST .)
+    OF              reduce using rule 27 (expr -> STR_CONST .)
+    THEN            reduce using rule 27 (expr -> STR_CONST .)
+    )               reduce using rule 27 (expr -> STR_CONST .)
+    LOOP            reduce using rule 27 (expr -> STR_CONST .)
+    }               reduce using rule 27 (expr -> STR_CONST .)
+    ,               reduce using rule 27 (expr -> STR_CONST .)
+    ELSE            reduce using rule 27 (expr -> STR_CONST .)
+    POOL            reduce using rule 27 (expr -> STR_CONST .)
+    FI              reduce using rule 27 (expr -> STR_CONST .)
+    IN              reduce using rule 27 (expr -> STR_CONST .)
+
+
+state 56
+
+    (28) expr -> INT_CONST .
+    =               reduce using rule 28 (expr -> INT_CONST .)
+    LE              reduce using rule 28 (expr -> INT_CONST .)
+    <               reduce using rule 28 (expr -> INT_CONST .)
+    /               reduce using rule 28 (expr -> INT_CONST .)
+    *               reduce using rule 28 (expr -> INT_CONST .)
+    -               reduce using rule 28 (expr -> INT_CONST .)
+    +               reduce using rule 28 (expr -> INT_CONST .)
+    @               reduce using rule 28 (expr -> INT_CONST .)
+    .               reduce using rule 28 (expr -> INT_CONST .)
+    error           reduce using rule 28 (expr -> INT_CONST .)
+    ;               reduce using rule 28 (expr -> INT_CONST .)
+    OF              reduce using rule 28 (expr -> INT_CONST .)
+    THEN            reduce using rule 28 (expr -> INT_CONST .)
+    )               reduce using rule 28 (expr -> INT_CONST .)
+    LOOP            reduce using rule 28 (expr -> INT_CONST .)
+    }               reduce using rule 28 (expr -> INT_CONST .)
+    ,               reduce using rule 28 (expr -> INT_CONST .)
+    ELSE            reduce using rule 28 (expr -> INT_CONST .)
+    POOL            reduce using rule 28 (expr -> INT_CONST .)
+    FI              reduce using rule 28 (expr -> INT_CONST .)
+    IN              reduce using rule 28 (expr -> INT_CONST .)
+
+
+state 57
+
+    (30) expr -> ( . expr )
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 81
+
+state 58
+
+    (31) expr -> NOT . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 82
+
+state 59
+
+    (35) expr -> ~ . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 83
+
+state 60
+
+    (40) expr -> ISVOID . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 84
+
+state 61
+
+    (41) expr -> NEW . TYPEID
+    TYPEID          shift and go to state 85
+
+
+state 62
+
+    (43) expr -> LET . assign_list IN expr
+    (59) assign_list -> . assign_list , OBJECTID : TYPEID ASSIGN error
+    (60) assign_list -> . OBJECTID : TYPEID ASSIGN error
+    (61) assign_list -> . assign_list , OBJECTID : TYPEID ASSIGN expr
+    (62) assign_list -> . assign_list , OBJECTID : TYPEID
+    (63) assign_list -> . OBJECTID : TYPEID
+    (64) assign_list -> . OBJECTID : TYPEID ASSIGN expr
+    OBJECTID        shift and go to state 87
+
+    assign_list                    shift and go to state 86
+
+state 63
+
+    (44) expr -> { . expresion_list }
+    (56) expresion_list -> . error ;
+    (57) expresion_list -> . expresion_list expr ;
+    (58) expresion_list -> . expr ;
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    error           shift and go to state 89
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expresion_list                 shift and go to state 88
+    expr                           shift and go to state 90
+
+state 64
+
+    (45) expr -> WHILE . expr LOOP expr POOL
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 91
+
+state 65
+
+    (12) feature -> OBJECTID ( ) : TYPEID { . error }
+    (18) feature -> OBJECTID ( ) : TYPEID { . expr }
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    error           shift and go to state 92
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 93
+
+state 66
+
+    (17) feature -> OBJECTID ( formal_list ) : TYPEID . { expr }
+    {               shift and go to state 94
+
+
+state 67
+
+    (47) expr -> OBJECTID ( . arg_list )
+    (52) expr -> OBJECTID ( . )
+    (54) arg_list -> . arg_list , expr
+    (55) arg_list -> . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    )               shift and go to state 96
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    arg_list                       shift and go to state 95
+    expr                           shift and go to state 97
+
+state 68
+
+    (53) expr -> OBJECTID ASSIGN . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 98
+
+state 69
+
+    (32) expr -> expr = . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 99
+
+state 70
+
+    (33) expr -> expr LE . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 100
+
+state 71
+
+    (34) expr -> expr < . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 101
+
+state 72
+
+    (36) expr -> expr / . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 102
+
+state 73
+
+    (37) expr -> expr * . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 103
+
+state 74
+
+    (38) expr -> expr - . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 104
+
+state 75
+
+    (39) expr -> expr + . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 105
+
+state 76
+
+    (48) expr -> expr @ . TYPEID . OBJECTID ( arg_list )
+    (50) expr -> expr @ . TYPEID . OBJECTID ( )
+    TYPEID          shift and go to state 106
+
+
+state 77
+
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (51) expr -> expr . . OBJECTID ( )
+    OBJECTID        shift and go to state 107
+
+
+state 78
+
+    (23) expr -> CASE error . OF case_list ESAC
+    OF              shift and go to state 108
+
+
+state 79
+
+    (42) expr -> CASE expr . OF case_list ESAC
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    OF              shift and go to state 109
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 80
+
+    (24) expr -> IF expr . THEN expr error FI
+    (25) expr -> IF expr . THEN expr ELSE expr error
+    (46) expr -> IF expr . THEN expr ELSE expr FI
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    THEN            shift and go to state 110
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 81
+
+    (30) expr -> ( expr . )
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    )               shift and go to state 111
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 82
+
+    (31) expr -> NOT expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    error           reduce using rule 31 (expr -> NOT expr .)
+    ;               reduce using rule 31 (expr -> NOT expr .)
+    OF              reduce using rule 31 (expr -> NOT expr .)
+    THEN            reduce using rule 31 (expr -> NOT expr .)
+    )               reduce using rule 31 (expr -> NOT expr .)
+    LOOP            reduce using rule 31 (expr -> NOT expr .)
+    }               reduce using rule 31 (expr -> NOT expr .)
+    ,               reduce using rule 31 (expr -> NOT expr .)
+    ELSE            reduce using rule 31 (expr -> NOT expr .)
+    POOL            reduce using rule 31 (expr -> NOT expr .)
+    FI              reduce using rule 31 (expr -> NOT expr .)
+    IN              reduce using rule 31 (expr -> NOT expr .)
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 83
+
+    (35) expr -> ~ expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    =               reduce using rule 35 (expr -> ~ expr .)
+    LE              reduce using rule 35 (expr -> ~ expr .)
+    <               reduce using rule 35 (expr -> ~ expr .)
+    /               reduce using rule 35 (expr -> ~ expr .)
+    *               reduce using rule 35 (expr -> ~ expr .)
+    -               reduce using rule 35 (expr -> ~ expr .)
+    +               reduce using rule 35 (expr -> ~ expr .)
+    error           reduce using rule 35 (expr -> ~ expr .)
+    ;               reduce using rule 35 (expr -> ~ expr .)
+    OF              reduce using rule 35 (expr -> ~ expr .)
+    THEN            reduce using rule 35 (expr -> ~ expr .)
+    )               reduce using rule 35 (expr -> ~ expr .)
+    LOOP            reduce using rule 35 (expr -> ~ expr .)
+    }               reduce using rule 35 (expr -> ~ expr .)
+    ,               reduce using rule 35 (expr -> ~ expr .)
+    ELSE            reduce using rule 35 (expr -> ~ expr .)
+    POOL            reduce using rule 35 (expr -> ~ expr .)
+    FI              reduce using rule 35 (expr -> ~ expr .)
+    IN              reduce using rule 35 (expr -> ~ expr .)
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 84
+
+    (40) expr -> ISVOID expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    =               reduce using rule 40 (expr -> ISVOID expr .)
+    LE              reduce using rule 40 (expr -> ISVOID expr .)
+    <               reduce using rule 40 (expr -> ISVOID expr .)
+    /               reduce using rule 40 (expr -> ISVOID expr .)
+    *               reduce using rule 40 (expr -> ISVOID expr .)
+    -               reduce using rule 40 (expr -> ISVOID expr .)
+    +               reduce using rule 40 (expr -> ISVOID expr .)
+    error           reduce using rule 40 (expr -> ISVOID expr .)
+    ;               reduce using rule 40 (expr -> ISVOID expr .)
+    OF              reduce using rule 40 (expr -> ISVOID expr .)
+    THEN            reduce using rule 40 (expr -> ISVOID expr .)
+    )               reduce using rule 40 (expr -> ISVOID expr .)
+    LOOP            reduce using rule 40 (expr -> ISVOID expr .)
+    }               reduce using rule 40 (expr -> ISVOID expr .)
+    ,               reduce using rule 40 (expr -> ISVOID expr .)
+    ELSE            reduce using rule 40 (expr -> ISVOID expr .)
+    POOL            reduce using rule 40 (expr -> ISVOID expr .)
+    FI              reduce using rule 40 (expr -> ISVOID expr .)
+    IN              reduce using rule 40 (expr -> ISVOID expr .)
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 85
+
+    (41) expr -> NEW TYPEID .
+    =               reduce using rule 41 (expr -> NEW TYPEID .)
+    LE              reduce using rule 41 (expr -> NEW TYPEID .)
+    <               reduce using rule 41 (expr -> NEW TYPEID .)
+    /               reduce using rule 41 (expr -> NEW TYPEID .)
+    *               reduce using rule 41 (expr -> NEW TYPEID .)
+    -               reduce using rule 41 (expr -> NEW TYPEID .)
+    +               reduce using rule 41 (expr -> NEW TYPEID .)
+    @               reduce using rule 41 (expr -> NEW TYPEID .)
+    .               reduce using rule 41 (expr -> NEW TYPEID .)
+    error           reduce using rule 41 (expr -> NEW TYPEID .)
+    ;               reduce using rule 41 (expr -> NEW TYPEID .)
+    OF              reduce using rule 41 (expr -> NEW TYPEID .)
+    THEN            reduce using rule 41 (expr -> NEW TYPEID .)
+    )               reduce using rule 41 (expr -> NEW TYPEID .)
+    LOOP            reduce using rule 41 (expr -> NEW TYPEID .)
+    }               reduce using rule 41 (expr -> NEW TYPEID .)
+    ,               reduce using rule 41 (expr -> NEW TYPEID .)
+    ELSE            reduce using rule 41 (expr -> NEW TYPEID .)
+    POOL            reduce using rule 41 (expr -> NEW TYPEID .)
+    FI              reduce using rule 41 (expr -> NEW TYPEID .)
+    IN              reduce using rule 41 (expr -> NEW TYPEID .)
+
+
+state 86
+
+    (43) expr -> LET assign_list . IN expr
+    (59) assign_list -> assign_list . , OBJECTID : TYPEID ASSIGN error
+    (61) assign_list -> assign_list . , OBJECTID : TYPEID ASSIGN expr
+    (62) assign_list -> assign_list . , OBJECTID : TYPEID
+    IN              shift and go to state 112
+    ,               shift and go to state 113
+
+
+state 87
+
+    (60) assign_list -> OBJECTID . : TYPEID ASSIGN error
+    (63) assign_list -> OBJECTID . : TYPEID
+    (64) assign_list -> OBJECTID . : TYPEID ASSIGN expr
+    :               shift and go to state 114
+
+
+state 88
+
+    (44) expr -> { expresion_list . }
+    (57) expresion_list -> expresion_list . expr ;
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    }               shift and go to state 115
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 116
+
+state 89
+
+    (56) expresion_list -> error . ;
+    ;               shift and go to state 117
+
+
+state 90
+
+    (58) expresion_list -> expr . ;
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    ;               shift and go to state 118
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 91
+
+    (45) expr -> WHILE expr . LOOP expr POOL
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    LOOP            shift and go to state 119
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 92
+
+    (12) feature -> OBJECTID ( ) : TYPEID { error . }
+    }               shift and go to state 120
+
+
+state 93
+
+    (18) feature -> OBJECTID ( ) : TYPEID { expr . }
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    }               shift and go to state 121
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 94
+
+    (17) feature -> OBJECTID ( formal_list ) : TYPEID { . expr }
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 122
+
+state 95
+
+    (47) expr -> OBJECTID ( arg_list . )
+    (54) arg_list -> arg_list . , expr
+    )               shift and go to state 123
+    ,               shift and go to state 124
+
+
+state 96
+
+    (52) expr -> OBJECTID ( ) .
+    =               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    LE              reduce using rule 52 (expr -> OBJECTID ( ) .)
+    <               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    /               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    *               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    -               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    +               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    @               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    .               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    error           reduce using rule 52 (expr -> OBJECTID ( ) .)
+    ;               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    OF              reduce using rule 52 (expr -> OBJECTID ( ) .)
+    THEN            reduce using rule 52 (expr -> OBJECTID ( ) .)
+    )               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    LOOP            reduce using rule 52 (expr -> OBJECTID ( ) .)
+    }               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    ,               reduce using rule 52 (expr -> OBJECTID ( ) .)
+    ELSE            reduce using rule 52 (expr -> OBJECTID ( ) .)
+    POOL            reduce using rule 52 (expr -> OBJECTID ( ) .)
+    FI              reduce using rule 52 (expr -> OBJECTID ( ) .)
+    IN              reduce using rule 52 (expr -> OBJECTID ( ) .)
+
+
+state 97
+
+    (55) arg_list -> expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    )               reduce using rule 55 (arg_list -> expr .)
+    ,               reduce using rule 55 (arg_list -> expr .)
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 98
+
+    (53) expr -> OBJECTID ASSIGN expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    error           reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    ;               reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    OF              reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    THEN            reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    )               reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    LOOP            reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    }               reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    ,               reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    ELSE            reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    POOL            reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    FI              reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    IN              reduce using rule 53 (expr -> OBJECTID ASSIGN expr .)
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 99
+
+    (32) expr -> expr = expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    =               reduce using rule 32 (expr -> expr = expr .)
+    LE              reduce using rule 32 (expr -> expr = expr .)
+    <               reduce using rule 32 (expr -> expr = expr .)
+    error           reduce using rule 32 (expr -> expr = expr .)
+    ;               reduce using rule 32 (expr -> expr = expr .)
+    OF              reduce using rule 32 (expr -> expr = expr .)
+    THEN            reduce using rule 32 (expr -> expr = expr .)
+    )               reduce using rule 32 (expr -> expr = expr .)
+    LOOP            reduce using rule 32 (expr -> expr = expr .)
+    }               reduce using rule 32 (expr -> expr = expr .)
+    ,               reduce using rule 32 (expr -> expr = expr .)
+    ELSE            reduce using rule 32 (expr -> expr = expr .)
+    POOL            reduce using rule 32 (expr -> expr = expr .)
+    FI              reduce using rule 32 (expr -> expr = expr .)
+    IN              reduce using rule 32 (expr -> expr = expr .)
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 100
+
+    (33) expr -> expr LE expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    =               reduce using rule 33 (expr -> expr LE expr .)
+    LE              reduce using rule 33 (expr -> expr LE expr .)
+    <               reduce using rule 33 (expr -> expr LE expr .)
+    error           reduce using rule 33 (expr -> expr LE expr .)
+    ;               reduce using rule 33 (expr -> expr LE expr .)
+    OF              reduce using rule 33 (expr -> expr LE expr .)
+    THEN            reduce using rule 33 (expr -> expr LE expr .)
+    )               reduce using rule 33 (expr -> expr LE expr .)
+    LOOP            reduce using rule 33 (expr -> expr LE expr .)
+    }               reduce using rule 33 (expr -> expr LE expr .)
+    ,               reduce using rule 33 (expr -> expr LE expr .)
+    ELSE            reduce using rule 33 (expr -> expr LE expr .)
+    POOL            reduce using rule 33 (expr -> expr LE expr .)
+    FI              reduce using rule 33 (expr -> expr LE expr .)
+    IN              reduce using rule 33 (expr -> expr LE expr .)
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 101
+
+    (34) expr -> expr < expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    =               reduce using rule 34 (expr -> expr < expr .)
+    LE              reduce using rule 34 (expr -> expr < expr .)
+    <               reduce using rule 34 (expr -> expr < expr .)
+    error           reduce using rule 34 (expr -> expr < expr .)
+    ;               reduce using rule 34 (expr -> expr < expr .)
+    OF              reduce using rule 34 (expr -> expr < expr .)
+    THEN            reduce using rule 34 (expr -> expr < expr .)
+    )               reduce using rule 34 (expr -> expr < expr .)
+    LOOP            reduce using rule 34 (expr -> expr < expr .)
+    }               reduce using rule 34 (expr -> expr < expr .)
+    ,               reduce using rule 34 (expr -> expr < expr .)
+    ELSE            reduce using rule 34 (expr -> expr < expr .)
+    POOL            reduce using rule 34 (expr -> expr < expr .)
+    FI              reduce using rule 34 (expr -> expr < expr .)
+    IN              reduce using rule 34 (expr -> expr < expr .)
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 102
+
+    (36) expr -> expr / expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    =               reduce using rule 36 (expr -> expr / expr .)
+    LE              reduce using rule 36 (expr -> expr / expr .)
+    <               reduce using rule 36 (expr -> expr / expr .)
+    /               reduce using rule 36 (expr -> expr / expr .)
+    *               reduce using rule 36 (expr -> expr / expr .)
+    -               reduce using rule 36 (expr -> expr / expr .)
+    +               reduce using rule 36 (expr -> expr / expr .)
+    error           reduce using rule 36 (expr -> expr / expr .)
+    ;               reduce using rule 36 (expr -> expr / expr .)
+    OF              reduce using rule 36 (expr -> expr / expr .)
+    THEN            reduce using rule 36 (expr -> expr / expr .)
+    )               reduce using rule 36 (expr -> expr / expr .)
+    LOOP            reduce using rule 36 (expr -> expr / expr .)
+    }               reduce using rule 36 (expr -> expr / expr .)
+    ,               reduce using rule 36 (expr -> expr / expr .)
+    ELSE            reduce using rule 36 (expr -> expr / expr .)
+    POOL            reduce using rule 36 (expr -> expr / expr .)
+    FI              reduce using rule 36 (expr -> expr / expr .)
+    IN              reduce using rule 36 (expr -> expr / expr .)
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 103
+
+    (37) expr -> expr * expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    =               reduce using rule 37 (expr -> expr * expr .)
+    LE              reduce using rule 37 (expr -> expr * expr .)
+    <               reduce using rule 37 (expr -> expr * expr .)
+    /               reduce using rule 37 (expr -> expr * expr .)
+    *               reduce using rule 37 (expr -> expr * expr .)
+    -               reduce using rule 37 (expr -> expr * expr .)
+    +               reduce using rule 37 (expr -> expr * expr .)
+    error           reduce using rule 37 (expr -> expr * expr .)
+    ;               reduce using rule 37 (expr -> expr * expr .)
+    OF              reduce using rule 37 (expr -> expr * expr .)
+    THEN            reduce using rule 37 (expr -> expr * expr .)
+    )               reduce using rule 37 (expr -> expr * expr .)
+    LOOP            reduce using rule 37 (expr -> expr * expr .)
+    }               reduce using rule 37 (expr -> expr * expr .)
+    ,               reduce using rule 37 (expr -> expr * expr .)
+    ELSE            reduce using rule 37 (expr -> expr * expr .)
+    POOL            reduce using rule 37 (expr -> expr * expr .)
+    FI              reduce using rule 37 (expr -> expr * expr .)
+    IN              reduce using rule 37 (expr -> expr * expr .)
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 104
+
+    (38) expr -> expr - expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    =               reduce using rule 38 (expr -> expr - expr .)
+    LE              reduce using rule 38 (expr -> expr - expr .)
+    <               reduce using rule 38 (expr -> expr - expr .)
+    -               reduce using rule 38 (expr -> expr - expr .)
+    +               reduce using rule 38 (expr -> expr - expr .)
+    error           reduce using rule 38 (expr -> expr - expr .)
+    ;               reduce using rule 38 (expr -> expr - expr .)
+    OF              reduce using rule 38 (expr -> expr - expr .)
+    THEN            reduce using rule 38 (expr -> expr - expr .)
+    )               reduce using rule 38 (expr -> expr - expr .)
+    LOOP            reduce using rule 38 (expr -> expr - expr .)
+    }               reduce using rule 38 (expr -> expr - expr .)
+    ,               reduce using rule 38 (expr -> expr - expr .)
+    ELSE            reduce using rule 38 (expr -> expr - expr .)
+    POOL            reduce using rule 38 (expr -> expr - expr .)
+    FI              reduce using rule 38 (expr -> expr - expr .)
+    IN              reduce using rule 38 (expr -> expr - expr .)
+    /               shift and go to state 72
+    *               shift and go to state 73
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 105
+
+    (39) expr -> expr + expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    =               reduce using rule 39 (expr -> expr + expr .)
+    LE              reduce using rule 39 (expr -> expr + expr .)
+    <               reduce using rule 39 (expr -> expr + expr .)
+    -               reduce using rule 39 (expr -> expr + expr .)
+    +               reduce using rule 39 (expr -> expr + expr .)
+    error           reduce using rule 39 (expr -> expr + expr .)
+    ;               reduce using rule 39 (expr -> expr + expr .)
+    OF              reduce using rule 39 (expr -> expr + expr .)
+    THEN            reduce using rule 39 (expr -> expr + expr .)
+    )               reduce using rule 39 (expr -> expr + expr .)
+    LOOP            reduce using rule 39 (expr -> expr + expr .)
+    }               reduce using rule 39 (expr -> expr + expr .)
+    ,               reduce using rule 39 (expr -> expr + expr .)
+    ELSE            reduce using rule 39 (expr -> expr + expr .)
+    POOL            reduce using rule 39 (expr -> expr + expr .)
+    FI              reduce using rule 39 (expr -> expr + expr .)
+    IN              reduce using rule 39 (expr -> expr + expr .)
+    /               shift and go to state 72
+    *               shift and go to state 73
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 106
+
+    (48) expr -> expr @ TYPEID . . OBJECTID ( arg_list )
+    (50) expr -> expr @ TYPEID . . OBJECTID ( )
+    .               shift and go to state 125
+
+
+state 107
+
+    (49) expr -> expr . OBJECTID . ( arg_list )
+    (51) expr -> expr . OBJECTID . ( )
+    (               shift and go to state 126
+
+
+state 108
+
+    (23) expr -> CASE error OF . case_list ESAC
+    (65) case_list -> . case_list OBJECTID : TYPEID DARROW expr ;
+    (66) case_list -> . OBJECTID : TYPEID DARROW expr ;
+    OBJECTID        shift and go to state 128
+
+    case_list                      shift and go to state 127
+
+state 109
+
+    (42) expr -> CASE expr OF . case_list ESAC
+    (65) case_list -> . case_list OBJECTID : TYPEID DARROW expr ;
+    (66) case_list -> . OBJECTID : TYPEID DARROW expr ;
+    OBJECTID        shift and go to state 128
+
+    case_list                      shift and go to state 129
+
+state 110
+
+    (24) expr -> IF expr THEN . expr error FI
+    (25) expr -> IF expr THEN . expr ELSE expr error
+    (46) expr -> IF expr THEN . expr ELSE expr FI
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 130
+
+state 111
+
+    (30) expr -> ( expr ) .
+    =               reduce using rule 30 (expr -> ( expr ) .)
+    LE              reduce using rule 30 (expr -> ( expr ) .)
+    <               reduce using rule 30 (expr -> ( expr ) .)
+    /               reduce using rule 30 (expr -> ( expr ) .)
+    *               reduce using rule 30 (expr -> ( expr ) .)
+    -               reduce using rule 30 (expr -> ( expr ) .)
+    +               reduce using rule 30 (expr -> ( expr ) .)
+    @               reduce using rule 30 (expr -> ( expr ) .)
+    .               reduce using rule 30 (expr -> ( expr ) .)
+    error           reduce using rule 30 (expr -> ( expr ) .)
+    ;               reduce using rule 30 (expr -> ( expr ) .)
+    OF              reduce using rule 30 (expr -> ( expr ) .)
+    THEN            reduce using rule 30 (expr -> ( expr ) .)
+    )               reduce using rule 30 (expr -> ( expr ) .)
+    LOOP            reduce using rule 30 (expr -> ( expr ) .)
+    }               reduce using rule 30 (expr -> ( expr ) .)
+    ,               reduce using rule 30 (expr -> ( expr ) .)
+    ELSE            reduce using rule 30 (expr -> ( expr ) .)
+    POOL            reduce using rule 30 (expr -> ( expr ) .)
+    FI              reduce using rule 30 (expr -> ( expr ) .)
+    IN              reduce using rule 30 (expr -> ( expr ) .)
+
+
+state 112
+
+    (43) expr -> LET assign_list IN . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 131
+
+state 113
+
+    (59) assign_list -> assign_list , . OBJECTID : TYPEID ASSIGN error
+    (61) assign_list -> assign_list , . OBJECTID : TYPEID ASSIGN expr
+    (62) assign_list -> assign_list , . OBJECTID : TYPEID
+    OBJECTID        shift and go to state 132
+
+
+state 114
+
+    (60) assign_list -> OBJECTID : . TYPEID ASSIGN error
+    (63) assign_list -> OBJECTID : . TYPEID
+    (64) assign_list -> OBJECTID : . TYPEID ASSIGN expr
+    TYPEID          shift and go to state 133
+
+
+state 115
+
+    (44) expr -> { expresion_list } .
+    =               reduce using rule 44 (expr -> { expresion_list } .)
+    LE              reduce using rule 44 (expr -> { expresion_list } .)
+    <               reduce using rule 44 (expr -> { expresion_list } .)
+    /               reduce using rule 44 (expr -> { expresion_list } .)
+    *               reduce using rule 44 (expr -> { expresion_list } .)
+    -               reduce using rule 44 (expr -> { expresion_list } .)
+    +               reduce using rule 44 (expr -> { expresion_list } .)
+    @               reduce using rule 44 (expr -> { expresion_list } .)
+    .               reduce using rule 44 (expr -> { expresion_list } .)
+    error           reduce using rule 44 (expr -> { expresion_list } .)
+    ;               reduce using rule 44 (expr -> { expresion_list } .)
+    OF              reduce using rule 44 (expr -> { expresion_list } .)
+    THEN            reduce using rule 44 (expr -> { expresion_list } .)
+    )               reduce using rule 44 (expr -> { expresion_list } .)
+    LOOP            reduce using rule 44 (expr -> { expresion_list } .)
+    }               reduce using rule 44 (expr -> { expresion_list } .)
+    ,               reduce using rule 44 (expr -> { expresion_list } .)
+    ELSE            reduce using rule 44 (expr -> { expresion_list } .)
+    POOL            reduce using rule 44 (expr -> { expresion_list } .)
+    FI              reduce using rule 44 (expr -> { expresion_list } .)
+    IN              reduce using rule 44 (expr -> { expresion_list } .)
+
+
+state 116
+
+    (57) expresion_list -> expresion_list expr . ;
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    ;               shift and go to state 134
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 117
+
+    (56) expresion_list -> error ; .
+    }               reduce using rule 56 (expresion_list -> error ; .)
+    CASE            reduce using rule 56 (expresion_list -> error ; .)
+    IF              reduce using rule 56 (expresion_list -> error ; .)
+    BOOL_CONST      reduce using rule 56 (expresion_list -> error ; .)
+    STR_CONST       reduce using rule 56 (expresion_list -> error ; .)
+    INT_CONST       reduce using rule 56 (expresion_list -> error ; .)
+    OBJECTID        reduce using rule 56 (expresion_list -> error ; .)
+    (               reduce using rule 56 (expresion_list -> error ; .)
+    NOT             reduce using rule 56 (expresion_list -> error ; .)
+    ~               reduce using rule 56 (expresion_list -> error ; .)
+    ISVOID          reduce using rule 56 (expresion_list -> error ; .)
+    NEW             reduce using rule 56 (expresion_list -> error ; .)
+    LET             reduce using rule 56 (expresion_list -> error ; .)
+    {               reduce using rule 56 (expresion_list -> error ; .)
+    WHILE           reduce using rule 56 (expresion_list -> error ; .)
+
+
+state 118
+
+    (58) expresion_list -> expr ; .
+    }               reduce using rule 58 (expresion_list -> expr ; .)
+    CASE            reduce using rule 58 (expresion_list -> expr ; .)
+    IF              reduce using rule 58 (expresion_list -> expr ; .)
+    BOOL_CONST      reduce using rule 58 (expresion_list -> expr ; .)
+    STR_CONST       reduce using rule 58 (expresion_list -> expr ; .)
+    INT_CONST       reduce using rule 58 (expresion_list -> expr ; .)
+    OBJECTID        reduce using rule 58 (expresion_list -> expr ; .)
+    (               reduce using rule 58 (expresion_list -> expr ; .)
+    NOT             reduce using rule 58 (expresion_list -> expr ; .)
+    ~               reduce using rule 58 (expresion_list -> expr ; .)
+    ISVOID          reduce using rule 58 (expresion_list -> expr ; .)
+    NEW             reduce using rule 58 (expresion_list -> expr ; .)
+    LET             reduce using rule 58 (expresion_list -> expr ; .)
+    {               reduce using rule 58 (expresion_list -> expr ; .)
+    WHILE           reduce using rule 58 (expresion_list -> expr ; .)
+
+
+state 119
+
+    (45) expr -> WHILE expr LOOP . expr POOL
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 135
+
+state 120
+
+    (12) feature -> OBJECTID ( ) : TYPEID { error } .
+    error           reduce using rule 12 (feature -> OBJECTID ( ) : TYPEID { error } .)
+    ;               reduce using rule 12 (feature -> OBJECTID ( ) : TYPEID { error } .)
+
+
+state 121
+
+    (18) feature -> OBJECTID ( ) : TYPEID { expr } .
+    error           reduce using rule 18 (feature -> OBJECTID ( ) : TYPEID { expr } .)
+    ;               reduce using rule 18 (feature -> OBJECTID ( ) : TYPEID { expr } .)
+
+
+state 122
+
+    (17) feature -> OBJECTID ( formal_list ) : TYPEID { expr . }
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    }               shift and go to state 136
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 123
+
+    (47) expr -> OBJECTID ( arg_list ) .
+    =               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    LE              reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    <               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    /               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    *               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    -               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    +               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    @               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    .               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    error           reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    ;               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    OF              reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    THEN            reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    )               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    LOOP            reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    }               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    ,               reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    ELSE            reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    POOL            reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    FI              reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+    IN              reduce using rule 47 (expr -> OBJECTID ( arg_list ) .)
+
+
+state 124
+
+    (54) arg_list -> arg_list , . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 137
+
+state 125
+
+    (48) expr -> expr @ TYPEID . . OBJECTID ( arg_list )
+    (50) expr -> expr @ TYPEID . . OBJECTID ( )
+    OBJECTID        shift and go to state 138
+
+
+state 126
+
+    (49) expr -> expr . OBJECTID ( . arg_list )
+    (51) expr -> expr . OBJECTID ( . )
+    (54) arg_list -> . arg_list , expr
+    (55) arg_list -> . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    )               shift and go to state 140
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 97
+    arg_list                       shift and go to state 139
+
+state 127
+
+    (23) expr -> CASE error OF case_list . ESAC
+    (65) case_list -> case_list . OBJECTID : TYPEID DARROW expr ;
+    ESAC            shift and go to state 141
+    OBJECTID        shift and go to state 142
+
+
+state 128
+
+    (66) case_list -> OBJECTID . : TYPEID DARROW expr ;
+    :               shift and go to state 143
+
+
+state 129
+
+    (42) expr -> CASE expr OF case_list . ESAC
+    (65) case_list -> case_list . OBJECTID : TYPEID DARROW expr ;
+    ESAC            shift and go to state 144
+    OBJECTID        shift and go to state 142
+
+
+state 130
+
+    (24) expr -> IF expr THEN expr . error FI
+    (25) expr -> IF expr THEN expr . ELSE expr error
+    (46) expr -> IF expr THEN expr . ELSE expr FI
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    error           shift and go to state 145
+    ELSE            shift and go to state 146
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 131
+
+    (43) expr -> LET assign_list IN expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+  ! shift/reduce conflict for = resolved as shift
+  ! shift/reduce conflict for LE resolved as shift
+  ! shift/reduce conflict for < resolved as shift
+  ! shift/reduce conflict for / resolved as shift
+  ! shift/reduce conflict for * resolved as shift
+  ! shift/reduce conflict for - resolved as shift
+  ! shift/reduce conflict for + resolved as shift
+  ! shift/reduce conflict for @ resolved as shift
+  ! shift/reduce conflict for . resolved as shift
+    error           reduce using rule 43 (expr -> LET assign_list IN expr .)
+    ;               reduce using rule 43 (expr -> LET assign_list IN expr .)
+    OF              reduce using rule 43 (expr -> LET assign_list IN expr .)
+    THEN            reduce using rule 43 (expr -> LET assign_list IN expr .)
+    )               reduce using rule 43 (expr -> LET assign_list IN expr .)
+    LOOP            reduce using rule 43 (expr -> LET assign_list IN expr .)
+    }               reduce using rule 43 (expr -> LET assign_list IN expr .)
+    ,               reduce using rule 43 (expr -> LET assign_list IN expr .)
+    ELSE            reduce using rule 43 (expr -> LET assign_list IN expr .)
+    POOL            reduce using rule 43 (expr -> LET assign_list IN expr .)
+    FI              reduce using rule 43 (expr -> LET assign_list IN expr .)
+    IN              reduce using rule 43 (expr -> LET assign_list IN expr .)
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 132
+
+    (59) assign_list -> assign_list , OBJECTID . : TYPEID ASSIGN error
+    (61) assign_list -> assign_list , OBJECTID . : TYPEID ASSIGN expr
+    (62) assign_list -> assign_list , OBJECTID . : TYPEID
+    :               shift and go to state 147
+
+
+state 133
+
+    (60) assign_list -> OBJECTID : TYPEID . ASSIGN error
+    (63) assign_list -> OBJECTID : TYPEID .
+    (64) assign_list -> OBJECTID : TYPEID . ASSIGN expr
+    ASSIGN          shift and go to state 148
+    IN              reduce using rule 63 (assign_list -> OBJECTID : TYPEID .)
+    ,               reduce using rule 63 (assign_list -> OBJECTID : TYPEID .)
+
+
+state 134
+
+    (57) expresion_list -> expresion_list expr ; .
+    }               reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    CASE            reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    IF              reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    BOOL_CONST      reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    STR_CONST       reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    INT_CONST       reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    OBJECTID        reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    (               reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    NOT             reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    ~               reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    ISVOID          reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    NEW             reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    LET             reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    {               reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+    WHILE           reduce using rule 57 (expresion_list -> expresion_list expr ; .)
+
+
+state 135
+
+    (45) expr -> WHILE expr LOOP expr . POOL
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    POOL            shift and go to state 149
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 136
+
+    (17) feature -> OBJECTID ( formal_list ) : TYPEID { expr } .
+    error           reduce using rule 17 (feature -> OBJECTID ( formal_list ) : TYPEID { expr } .)
+    ;               reduce using rule 17 (feature -> OBJECTID ( formal_list ) : TYPEID { expr } .)
+
+
+state 137
+
+    (54) arg_list -> arg_list , expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    )               reduce using rule 54 (arg_list -> arg_list , expr .)
+    ,               reduce using rule 54 (arg_list -> arg_list , expr .)
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 138
+
+    (48) expr -> expr @ TYPEID . OBJECTID . ( arg_list )
+    (50) expr -> expr @ TYPEID . OBJECTID . ( )
+    (               shift and go to state 150
+
+
+state 139
+
+    (49) expr -> expr . OBJECTID ( arg_list . )
+    (54) arg_list -> arg_list . , expr
+    )               shift and go to state 151
+    ,               shift and go to state 124
+
+
+state 140
+
+    (51) expr -> expr . OBJECTID ( ) .
+    =               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    LE              reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    <               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    /               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    *               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    -               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    +               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    @               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    .               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    error           reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    ;               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    OF              reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    THEN            reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    )               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    LOOP            reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    }               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    ,               reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    ELSE            reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    POOL            reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    FI              reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+    IN              reduce using rule 51 (expr -> expr . OBJECTID ( ) .)
+
+
+state 141
+
+    (23) expr -> CASE error OF case_list ESAC .
+    =               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    LE              reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    <               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    /               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    *               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    -               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    +               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    @               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    .               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    error           reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    ;               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    OF              reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    THEN            reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    )               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    LOOP            reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    }               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    ,               reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    ELSE            reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    POOL            reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    FI              reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+    IN              reduce using rule 23 (expr -> CASE error OF case_list ESAC .)
+
+
+state 142
+
+    (65) case_list -> case_list OBJECTID . : TYPEID DARROW expr ;
+    :               shift and go to state 152
+
+
+state 143
+
+    (66) case_list -> OBJECTID : . TYPEID DARROW expr ;
+    TYPEID          shift and go to state 153
+
+
+state 144
+
+    (42) expr -> CASE expr OF case_list ESAC .
+    =               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    LE              reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    <               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    /               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    *               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    -               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    +               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    @               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    .               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    error           reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    ;               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    OF              reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    THEN            reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    )               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    LOOP            reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    }               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    ,               reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    ELSE            reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    POOL            reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    FI              reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+    IN              reduce using rule 42 (expr -> CASE expr OF case_list ESAC .)
+
+
+state 145
+
+    (24) expr -> IF expr THEN expr error . FI
+    FI              shift and go to state 154
+
+
+state 146
+
+    (25) expr -> IF expr THEN expr ELSE . expr error
+    (46) expr -> IF expr THEN expr ELSE . expr FI
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 155
+
+state 147
+
+    (59) assign_list -> assign_list , OBJECTID : . TYPEID ASSIGN error
+    (61) assign_list -> assign_list , OBJECTID : . TYPEID ASSIGN expr
+    (62) assign_list -> assign_list , OBJECTID : . TYPEID
+    TYPEID          shift and go to state 156
+
+
+state 148
+
+    (60) assign_list -> OBJECTID : TYPEID ASSIGN . error
+    (64) assign_list -> OBJECTID : TYPEID ASSIGN . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    error           shift and go to state 157
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 158
+
+state 149
+
+    (45) expr -> WHILE expr LOOP expr POOL .
+    =               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    LE              reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    <               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    /               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    *               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    -               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    +               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    @               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    .               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    error           reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    ;               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    OF              reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    THEN            reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    )               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    LOOP            reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    }               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    ,               reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    ELSE            reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    POOL            reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    FI              reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+    IN              reduce using rule 45 (expr -> WHILE expr LOOP expr POOL .)
+
+
+state 150
+
+    (48) expr -> expr @ TYPEID . OBJECTID ( . arg_list )
+    (50) expr -> expr @ TYPEID . OBJECTID ( . )
+    (54) arg_list -> . arg_list , expr
+    (55) arg_list -> . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    )               shift and go to state 160
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 97
+    arg_list                       shift and go to state 159
+
+state 151
+
+    (49) expr -> expr . OBJECTID ( arg_list ) .
+    =               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    LE              reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    <               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    /               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    *               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    -               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    +               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    @               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    .               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    error           reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    ;               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    OF              reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    THEN            reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    )               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    LOOP            reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    }               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    ,               reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    ELSE            reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    POOL            reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    FI              reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+    IN              reduce using rule 49 (expr -> expr . OBJECTID ( arg_list ) .)
+
+
+state 152
+
+    (65) case_list -> case_list OBJECTID : . TYPEID DARROW expr ;
+    TYPEID          shift and go to state 161
+
+
+state 153
+
+    (66) case_list -> OBJECTID : TYPEID . DARROW expr ;
+    DARROW          shift and go to state 162
+
+
+state 154
+
+    (24) expr -> IF expr THEN expr error FI .
+    =               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    LE              reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    <               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    /               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    *               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    -               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    +               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    @               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    .               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    error           reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    ;               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    OF              reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    THEN            reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    )               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    LOOP            reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    }               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    ,               reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    ELSE            reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    POOL            reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    FI              reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+    IN              reduce using rule 24 (expr -> IF expr THEN expr error FI .)
+
+
+state 155
+
+    (25) expr -> IF expr THEN expr ELSE expr . error
+    (46) expr -> IF expr THEN expr ELSE expr . FI
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    error           shift and go to state 163
+    FI              shift and go to state 164
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 156
+
+    (59) assign_list -> assign_list , OBJECTID : TYPEID . ASSIGN error
+    (61) assign_list -> assign_list , OBJECTID : TYPEID . ASSIGN expr
+    (62) assign_list -> assign_list , OBJECTID : TYPEID .
+    ASSIGN          shift and go to state 165
+    IN              reduce using rule 62 (assign_list -> assign_list , OBJECTID : TYPEID .)
+    ,               reduce using rule 62 (assign_list -> assign_list , OBJECTID : TYPEID .)
+
+
+state 157
+
+    (60) assign_list -> OBJECTID : TYPEID ASSIGN error .
+    IN              reduce using rule 60 (assign_list -> OBJECTID : TYPEID ASSIGN error .)
+    ,               reduce using rule 60 (assign_list -> OBJECTID : TYPEID ASSIGN error .)
+
+
+state 158
+
+    (64) assign_list -> OBJECTID : TYPEID ASSIGN expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    IN              reduce using rule 64 (assign_list -> OBJECTID : TYPEID ASSIGN expr .)
+    ,               reduce using rule 64 (assign_list -> OBJECTID : TYPEID ASSIGN expr .)
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 159
+
+    (48) expr -> expr @ TYPEID . OBJECTID ( arg_list . )
+    (54) arg_list -> arg_list . , expr
+    )               shift and go to state 166
+    ,               shift and go to state 124
+
+
+state 160
+
+    (50) expr -> expr @ TYPEID . OBJECTID ( ) .
+    =               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    LE              reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    <               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    /               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    *               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    -               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    +               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    @               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    .               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    error           reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    ;               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    OF              reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    THEN            reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    )               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    LOOP            reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    }               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    ,               reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    ELSE            reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    POOL            reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    FI              reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+    IN              reduce using rule 50 (expr -> expr @ TYPEID . OBJECTID ( ) .)
+
+
+state 161
+
+    (65) case_list -> case_list OBJECTID : TYPEID . DARROW expr ;
+    DARROW          shift and go to state 167
+
+
+state 162
+
+    (66) case_list -> OBJECTID : TYPEID DARROW . expr ;
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 168
+
+state 163
+
+    (25) expr -> IF expr THEN expr ELSE expr error .
+    =               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    LE              reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    <               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    /               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    *               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    -               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    +               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    @               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    .               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    error           reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    ;               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    OF              reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    THEN            reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    )               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    LOOP            reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    }               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    ,               reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    ELSE            reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    POOL            reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    FI              reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+    IN              reduce using rule 25 (expr -> IF expr THEN expr ELSE expr error .)
+
+
+state 164
+
+    (46) expr -> IF expr THEN expr ELSE expr FI .
+    =               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    LE              reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    <               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    /               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    *               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    -               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    +               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    @               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    .               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    error           reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    ;               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    OF              reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    THEN            reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    )               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    LOOP            reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    }               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    ,               reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    ELSE            reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    POOL            reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    FI              reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+    IN              reduce using rule 46 (expr -> IF expr THEN expr ELSE expr FI .)
+
+
+state 165
+
+    (59) assign_list -> assign_list , OBJECTID : TYPEID ASSIGN . error
+    (61) assign_list -> assign_list , OBJECTID : TYPEID ASSIGN . expr
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    error           shift and go to state 169
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 170
+
+state 166
+
+    (48) expr -> expr @ TYPEID . OBJECTID ( arg_list ) .
+    =               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    LE              reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    <               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    /               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    *               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    -               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    +               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    @               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    .               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    error           reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    ;               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    OF              reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    THEN            reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    )               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    LOOP            reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    }               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    ,               reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    ELSE            reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    POOL            reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    FI              reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+    IN              reduce using rule 48 (expr -> expr @ TYPEID . OBJECTID ( arg_list ) .)
+
+
+state 167
+
+    (65) case_list -> case_list OBJECTID : TYPEID DARROW . expr ;
+    (23) expr -> . CASE error OF case_list ESAC
+    (24) expr -> . IF expr THEN expr error FI
+    (25) expr -> . IF expr THEN expr ELSE expr error
+    (26) expr -> . BOOL_CONST
+    (27) expr -> . STR_CONST
+    (28) expr -> . INT_CONST
+    (29) expr -> . OBJECTID
+    (30) expr -> . ( expr )
+    (31) expr -> . NOT expr
+    (32) expr -> . expr = expr
+    (33) expr -> . expr LE expr
+    (34) expr -> . expr < expr
+    (35) expr -> . ~ expr
+    (36) expr -> . expr / expr
+    (37) expr -> . expr * expr
+    (38) expr -> . expr - expr
+    (39) expr -> . expr + expr
+    (40) expr -> . ISVOID expr
+    (41) expr -> . NEW TYPEID
+    (42) expr -> . CASE expr OF case_list ESAC
+    (43) expr -> . LET assign_list IN expr
+    (44) expr -> . { expresion_list }
+    (45) expr -> . WHILE expr LOOP expr POOL
+    (46) expr -> . IF expr THEN expr ELSE expr FI
+    (47) expr -> . OBJECTID ( arg_list )
+    (48) expr -> . expr @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> . expr . OBJECTID ( arg_list )
+    (50) expr -> . expr @ TYPEID . OBJECTID ( )
+    (51) expr -> . expr . OBJECTID ( )
+    (52) expr -> . OBJECTID ( )
+    (53) expr -> . OBJECTID ASSIGN expr
+    CASE            shift and go to state 52
+    IF              shift and go to state 53
+    BOOL_CONST      shift and go to state 54
+    STR_CONST       shift and go to state 55
+    INT_CONST       shift and go to state 56
+    OBJECTID        shift and go to state 50
+    (               shift and go to state 57
+    NOT             shift and go to state 58
+    ~               shift and go to state 59
+    ISVOID          shift and go to state 60
+    NEW             shift and go to state 61
+    LET             shift and go to state 62
+    {               shift and go to state 63
+    WHILE           shift and go to state 64
+
+    expr                           shift and go to state 171
+
+state 168
+
+    (66) case_list -> OBJECTID : TYPEID DARROW expr . ;
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    ;               shift and go to state 172
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 169
+
+    (59) assign_list -> assign_list , OBJECTID : TYPEID ASSIGN error .
+    IN              reduce using rule 59 (assign_list -> assign_list , OBJECTID : TYPEID ASSIGN error .)
+    ,               reduce using rule 59 (assign_list -> assign_list , OBJECTID : TYPEID ASSIGN error .)
+
+
+state 170
+
+    (61) assign_list -> assign_list , OBJECTID : TYPEID ASSIGN expr .
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    IN              reduce using rule 61 (assign_list -> assign_list , OBJECTID : TYPEID ASSIGN expr .)
+    ,               reduce using rule 61 (assign_list -> assign_list , OBJECTID : TYPEID ASSIGN expr .)
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 171
+
+    (65) case_list -> case_list OBJECTID : TYPEID DARROW expr . ;
+    (32) expr -> expr . = expr
+    (33) expr -> expr . LE expr
+    (34) expr -> expr . < expr
+    (36) expr -> expr . / expr
+    (37) expr -> expr . * expr
+    (38) expr -> expr . - expr
+    (39) expr -> expr . + expr
+    (48) expr -> expr . @ TYPEID . OBJECTID ( arg_list )
+    (49) expr -> expr . . OBJECTID ( arg_list )
+    (50) expr -> expr . @ TYPEID . OBJECTID ( )
+    (51) expr -> expr . . OBJECTID ( )
+    ;               shift and go to state 173
+    =               shift and go to state 69
+    LE              shift and go to state 70
+    <               shift and go to state 71
+    /               shift and go to state 72
+    *               shift and go to state 73
+    -               shift and go to state 74
+    +               shift and go to state 75
+    @               shift and go to state 76
+    .               shift and go to state 77
+
+
+state 172
+
+    (66) case_list -> OBJECTID : TYPEID DARROW expr ; .
+    ESAC            reduce using rule 66 (case_list -> OBJECTID : TYPEID DARROW expr ; .)
+    OBJECTID        reduce using rule 66 (case_list -> OBJECTID : TYPEID DARROW expr ; .)
+
+
+state 173
+
+    (65) case_list -> case_list OBJECTID : TYPEID DARROW expr ; .
+    ESAC            reduce using rule 65 (case_list -> case_list OBJECTID : TYPEID DARROW expr ; .)
+    OBJECTID        reduce using rule 65 (case_list -> case_list OBJECTID : TYPEID DARROW expr ; .)
 
 
 Conflicts:
 
-shift/reduce conflict for * in state 9 resolved as shift
-shift/reduce conflict for - in state 9 resolved as shift
-shift/reduce conflict for + in state 9 resolved as shift
-shift/reduce conflict for * in state 10 resolved as shift
-shift/reduce conflict for - in state 10 resolved as shift
-shift/reduce conflict for + in state 10 resolved as shift
-shift/reduce conflict for * in state 11 resolved as shift
-shift/reduce conflict for - in state 11 resolved as shift
-shift/reduce conflict for + in state 11 resolved as shift
+shift/reduce conflict for = in state 131 resolved as shift
+shift/reduce conflict for LE in state 131 resolved as shift
+shift/reduce conflict for < in state 131 resolved as shift
+shift/reduce conflict for / in state 131 resolved as shift
+shift/reduce conflict for * in state 131 resolved as shift
+shift/reduce conflict for - in state 131 resolved as shift
+shift/reduce conflict for + in state 131 resolved as shift
+shift/reduce conflict for @ in state 131 resolved as shift
+shift/reduce conflict for . in state 131 resolved as shift

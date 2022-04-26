@@ -52,6 +52,10 @@ class CoolLexer(Lexer):
 
     @_(r'\bt[rR][uU][eE]\b|\bf[aA][lL][sS][eE]\b')
     def BOOL_CONST(self, t):
+        if t.value[0] == "t":
+            t.value = True
+        else: 
+            t.value = False
         return t
 
     """
@@ -198,7 +202,7 @@ class CoolLexer(Lexer):
             if token.type == 'OBJECTID':
                 result += f"{token.value}"
             elif token.type == 'BOOL_CONST':
-                result += "true" if token.value.lower() == "true" else "false"
+                result += "true" if str(token.value).lower() == "true" else "false"
             elif token.type == 'TYPEID':
                 result += f"{str(token.value)}"
             elif token.type in self.literals:

@@ -1,4 +1,6 @@
 # coding: utf-8
+from collections import defaultdict
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import List
 
@@ -67,6 +69,28 @@ class LlamadaMetodo(Expresion):
     nombre_metodo: str = '_no_set'
     argumentos: List[Expresion] = field(default_factory=list)
 
+    '''
+    def padre(self, clase): 
+        return self.herencia[clase]
+
+    def argumentos(self, clase, metodo):
+        self.metodos[clase, metodo]
+
+    def addClase(self, clase, padre): 
+        self.herencia[clase] =  padre
+
+    def addMetodo(self, metodo, clase, argumentos): 
+        self.metodos[clase, metodo] # TODO - argumentos
+
+    def tipoVar(self, nombreVar): pass
+
+    def addVar(self, nombreVar, tipo):
+        self.variables[nombreVar] = tipo
+    '''
+    def TIPO(self, ambito):
+        self.cuerpo.TIPO(ambito) # TODO
+        self.cast = ambito.argumentos(self.cuerpo.cast, self.nombre_metodo)[-1]
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_dispatch\n'
@@ -131,6 +155,11 @@ class Let(Expresion):
 class Bloque(Expresion):
     expresiones: List[Expresion] = field(default_factory=list)
 
+    def TIPO(self, ambito):
+        nuevoAmbito = deepcopy(ambito)
+        for expresion in self.expresiones:
+            expresion.TIPO(nuevoAmbito)
+
     def str(self, n):
         resultado = super().str(n)
         resultado = f'{n*" "}_block\n'
@@ -191,6 +220,17 @@ class OperacionBinaria(Expresion):
 class Suma(OperacionBinaria):
     operando: str = '+'
 
+    def TIPO(self, ambito):
+        self.izquierda.TIPO(ambito)
+        self.derecha.TIPO(ambito)
+        if self.izquierda.cast == "INT_CONST": # TODO - Cambiar
+            if self.derecha.cast == "INT_CONST": 
+                self.cast = "INT_CONST"
+            else:
+                self.cast = "Object"
+        else:
+                self.cast = "Object"
+        
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_plus\n'
@@ -347,6 +387,10 @@ class NoExpr(Expresion):
 class Entero(Expresion):
     valor: int = 0
 
+    def TIPO(self, ambito):
+        # Los atributos del padre
+        self.cast = "Int" # TODO - Ajustarlo
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_int\n'
@@ -358,6 +402,10 @@ class Entero(Expresion):
 @dataclass
 class String(Expresion):
     valor: str = '_no_set'
+
+    def TIPO(self, ambito):
+        # Los atributos del padre
+        self.cast = "String" # TODO - Ajustarlo
 
     def str(self, n):
         resultado = super().str(n)
@@ -383,8 +431,68 @@ class Booleano(Expresion):
 class IterableNodo(Nodo):
     secuencia: List = field(default_factory=List)
 
+'''
+Inicio del ...
+a. 2 strings, nombres de clases (1 es subtipo de otra)
+b. nombre del metodo + nombre clase: devolver el nombre de los argumentos con su tipo y el tipo de retorno
+c. Poder añadir clases al arbol (diciendo quien es su padre)
+d. Añadir métodos a una clase
+e. Decir nombre de una variable y que devuelva su tipo
+'''
+class Ambito():
+
+    def __init__(self):
+        # self.datos = {}
+        self.herencia = defaultdict(lambda: "Object") # clase: padre
+        '''
+        Object
+        abort() : Object
+        type_name() : String
+        copy() : SELF_TYPE
+
+        String 
+        length() : Int
+        concat(s : String) : String
+        substr(i : Int, l : Int) : String
+        '''
+        self.metodos = {
+            ("Object", "abort"): ["Object"],
+            ("Object", "type_name"): ["String"],
+            ("Object", "copy"): ["SELF_TYPE"], # TODO
+
+            ("String", "length"): ["Int"], # TODO
+            ("String", "concat"): ["String", "String"]
+        } #(clase, metodo): [argumentos, tipo_retorno]
+        
+        self.variables = {} # argumento: tipo
+    
+    def padre(self, clase): 
+        return self.herencia[clase]
+
+    def argumentos(self, clase, metodo):
+        self.metodos[clase, metodo]
+
+    def addClase(self, clase, padre): 
+        self.herencia[clase] =  padre
+
+    def addMetodo(self, metodo, clase, argumentos): 
+        self.metodos[clase, metodo] # TODO - argumentos
+
+    def tipoVar(self, nombreVar): pass
+
+    def addVar(self, nombreVar, tipo):
+        self.variables[nombreVar] = tipo
+
 
 class Programa(IterableNodo):
+
+    def TIPO(self):
+        ambito = Ambito()
+        for clase in self.secuencia:
+            ambito.addClase(clase.nombre, clase.padre)
+        for clase in self.secuencia:
+            clase.TIPO(ambito)
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{" "*n}_program\n'
@@ -405,6 +513,15 @@ class Clase(Nodo):
     nombre_fichero: str = '_no_set'
     caracteristicas: List[Caracteristica] = field(default_factory=list)
 
+    def TIPO(self, ambito):
+        nuevoAmbito = deepcopy(ambito)
+        for caracteristica in self.caracteristicas:
+            # nuevoAmbito.add(
+            if isinstance(caracteristica, Metodo):
+                caracteristica.TYPE(nuevoAmbito)
+            else:
+                nuevoAmbito.addVar(caracteristica.nombre, caracteristica.tipo)
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_class\n'
@@ -421,6 +538,12 @@ class Clase(Nodo):
 class Metodo(Caracteristica):
     formales: List[Formal] = field(default_factory=list)
 
+    def TIPO(self, ambito): # TODO
+        nuevoAmbito = deepcopy(ambito)
+        for formal in self.formales:
+            nuevoAmbito.addVar(formal.nombre_variable, formal.tipo)
+        self.cuerpo.TIPO(nuevoAmbito)
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_method\n'
@@ -433,6 +556,10 @@ class Metodo(Caracteristica):
 
 
 class Atributo(Caracteristica):
+
+    def TYPE(self, ambito): # TODO
+        
+        pass
 
     def str(self, n):
         resultado = super().str(n)

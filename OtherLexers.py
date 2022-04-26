@@ -83,7 +83,7 @@ class Comment(Lexer):
         t.value = self._word
         self._word = ""
         self.begin(L.CoolLexer)
-        
+        self.lineno += 1
         #return t
 
     @_(r'.')

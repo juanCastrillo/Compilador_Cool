@@ -15,7 +15,7 @@ from Lexer import *
 #from Parser import *
 from Clases import *
 
-PRACTICA = "02" # Practica que hay que evaluar
+PRACTICA = "03" # Practica que hay que evaluar
 DEBUG = True   # Decir si se lanzan mensajes de debug
 NUMLINEAS = 3   # Numero de lineas que se muestran antes y después de la no coincidencia
 sys.path.append(DIRECTORIO)
@@ -25,7 +25,7 @@ TESTS = [fich for fich in FICHEROS
          if os.path.isfile(os.path.join(DIR, fich)) and
          re.search(r"^[a-zA-Z].*\.(cool|test|cl)$",fich)]
 TESTS.sort()
-TESTS = TESTS
+TESTS = ['basic.test']#["arithprecedence.test"]#TESTS
 
 if True:
     for fich in TESTS:
@@ -84,8 +84,12 @@ if True:
             j = parser.parse(lexer.tokenize(entrada))
             try:
                 if j and not parser.errores:
+                    print("hola")
+                    j.TIPO()
+                    print(j.str(0))
                     resultado = '\n'.join([c for c in j.str(0).split('\n')
                                            if c and '#' not in c])
+                    print("algo"+resultado)
                 else:
                     resultado = '\n'.join(parser.errores)
                     resultado += '\n' + "Compilation halted due to lex and parse errors"
@@ -101,10 +105,14 @@ if True:
                         # print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))
                         f = open(os.path.join(DIR, fich)+'.nuestro', 'w')
                         g = open(os.path.join(DIR, fich)+'.bien', 'w')
-                        f.write(resultado.strip())
-                        g.write(bien.strip())
+                        f.write("\n".join(nuestro).strip())
+                        g.write("\n".join(bien).strip())
                         f.close()
                         g.close()
             except Exception as e:
-                print(f"Lanza excepción en {fich} con el texto {e}")
+                pass
+                # exc_type, exc_obj, exc_tb = sys.exc_info()
+                # fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                # print(exc_type, fname, exc_tb.tb_lineno)
+                # print(f"Lanza excepción en {fich} con el texto {e}")
 

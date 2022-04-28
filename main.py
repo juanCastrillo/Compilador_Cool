@@ -3,6 +3,7 @@ import re
 import sys
 from colorama import init
 from termcolor import colored
+import traceback
 
 from Parser import CoolParser
 init()
@@ -25,7 +26,7 @@ TESTS = [fich for fich in FICHEROS
          if os.path.isfile(os.path.join(DIR, fich)) and
          re.search(r"^[a-zA-Z].*\.(cool|test|cl)$",fich)]
 TESTS.sort()
-TESTS = ['basic.test']#["arithprecedence.test"]#TESTS
+TESTS = ['simplearith.test']#["arithprecedence.test"]#TESTS
 
 if True:
     for fich in TESTS:
@@ -86,7 +87,7 @@ if True:
                 if j and not parser.errores:
                     print("hola")
                     j.TIPO()
-                    print(j.str(0))
+                    # print(j.str(0))
                     resultado = '\n'.join([c for c in j.str(0).split('\n')
                                            if c and '#' not in c])
                     print("algo"+resultado)
@@ -110,9 +111,13 @@ if True:
                         f.close()
                         g.close()
             except Exception as e:
-                pass
-                # exc_type, exc_obj, exc_tb = sys.exc_info()
-                # fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                # print(exc_type, fname, exc_tb.tb_lineno)
-                # print(f"Lanza excepción en {fich} con el texto {e}")
+                print("ERROR")
+                print("------")
+                # print(e)
+                traceback.print_exc()
+                # pass
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+                print(f"Lanza excepción en {fich} con el texto {e}")
 

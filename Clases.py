@@ -17,6 +17,10 @@ class Nodo:
 class Formal(Nodo):
     nombre_variable: str = '_no_set'
     tipo: str = '_no_type'
+
+    def TIPO(self, ambito):
+        self.cast = self.tipo
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_formal\n'
@@ -28,11 +32,17 @@ class Formal(Nodo):
 class Expresion(Nodo):
     cast: str = '_no_type'
 
+    # def TIPO(self, ambito):
+    #     self.cast = "patata"
+
 
 @dataclass
 class Asignacion(Expresion):
     nombre: str = '_no_set'
     cuerpo: Expresion = None
+
+    def TIPO(self, ambito):
+        self.cast = self.cuerpo.cast
 
     def str(self, n):
         resultado = super().str(n)
@@ -69,27 +79,19 @@ class LlamadaMetodo(Expresion):
     nombre_metodo: str = '_no_set'
     argumentos: List[Expresion] = field(default_factory=list)
 
-    '''
-    def padre(self, clase): 
-        return self.herencia[clase]
-
-    def argumentos(self, clase, metodo):
-        self.metodos[clase, metodo]
-
-    def addClase(self, clase, padre): 
-        self.herencia[clase] =  padre
-
-    def addMetodo(self, metodo, clase, argumentos): 
-        self.metodos[clase, metodo] # TODO - argumentos
-
-    def tipoVar(self, nombreVar): pass
-
-    def addVar(self, nombreVar, tipo):
-        self.variables[nombreVar] = tipo
-    '''
     def TIPO(self, ambito):
-        self.cuerpo.TIPO(ambito) # TODO
+        self.cuerpo.TIPO(ambito)
         self.cast = ambito.argumentos(self.cuerpo.cast, self.nombre_metodo)[-1]
+        '''
+        def argumentos(self, clase, metodo):
+            claseOriginal = clase
+            while (clase, metodo) not in self.metodos: #
+                clase = self.padre(clase)
+            tipo = self.metodos[clase, metodo][-1]
+            if tipo == "SELF_TYPE":
+                tipo = claseOriginal
+            return self.metodos[clase, metodo][:-1]+[tipo]
+        '''
 
     def str(self, n):
         resultado = super().str(n)
@@ -159,6 +161,7 @@ class Bloque(Expresion):
         nuevoAmbito = deepcopy(ambito)
         for expresion in self.expresiones:
             expresion.TIPO(nuevoAmbito)
+        self.cast = self.expresiones[-1].cast 
 
     def str(self, n):
         resultado = super().str(n)
@@ -214,6 +217,14 @@ class Nueva(Nodo):
 class OperacionBinaria(Expresion):
     izquierda: Expresion = None
     derecha: Expresion = None
+
+    def TIPO(self, ambito):
+        self.izquierda.TIPO(ambito)
+        self.derecha.TIPO(ambito)
+        if self.izquierda.cast == self.derecha.cast:
+            self.cast = self.izquierda.cast
+        else:
+            raise Exception(f"Left and right are not same type: {self.izquierda} operator {self.derecha}")
 
 
 @dataclass
@@ -309,6 +320,11 @@ class LeIgual(OperacionBinaria):
 class Igual(OperacionBinaria):
     operando: str = '='
 
+    def TIPO(self, ambito):
+        self.izquierda.TIPO(ambito)
+        self.derecha.TIPO(ambito)
+        self.cast = "Bool"
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_eq\n'
@@ -364,6 +380,9 @@ class EsNulo(Expresion):
 class Objeto(Expresion):
     nombre: str = '_no_set'
 
+    def TIPO(self, ambito):
+        self.cast = ambito.tipoVar(self.nombre) #"Object"
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_object\n'
@@ -375,6 +394,9 @@ class Objeto(Expresion):
 @dataclass
 class NoExpr(Expresion):
     nombre: str = ''
+
+    def TIPO(self, ambito):
+        self.cast = "_no_type"
 
     def str(self, n):
         resultado = super().str(n)
@@ -419,6 +441,11 @@ class String(Expresion):
 @dataclass
 class Booleano(Expresion):
     valor: bool = False
+
+    def TIPO(self, ambito):
+        # nuevoAmbito = deepcopy(ambito)
+        self.cast = "Bool"
+        
 
     def str(self, n):
         resultado = super().str(n)
@@ -466,22 +493,29 @@ class Ambito():
         
         self.variables = {} # argumento: tipo
     
-    def padre(self, clase): 
-        return self.herencia[clase]
-
-    def argumentos(self, clase, metodo):
-        self.metodos[clase, metodo]
-
     def addClase(self, clase, padre): 
         self.herencia[clase] =  padre
 
-    def addMetodo(self, metodo, clase, argumentos): 
-        self.metodos[clase, metodo] # TODO - argumentos
+    def padre(self, clase): 
+        return self.herencia[clase]
 
-    def tipoVar(self, nombreVar): pass
+    def addMetodo(self, metodo, clase, argumentos): 
+        self.metodos[clase, metodo] = argumentos # TODO - argumentos
+
+    def argumentos(self, clase, metodo):
+        claseOriginal = clase
+        while (clase, metodo) not in self.metodos: #
+            clase = self.padre(clase)
+        tipo = self.metodos[clase, metodo][-1]
+        if tipo == "SELF_TYPE":
+            tipo = claseOriginal
+        return self.metodos[clase, metodo][:-1]+[tipo]
 
     def addVar(self, nombreVar, tipo):
         self.variables[nombreVar] = tipo
+
+    def tipoVar(self, nombreVar): 
+        return self.variables[nombreVar]
 
 
 class Programa(IterableNodo):
@@ -505,6 +539,9 @@ class Caracteristica(Nodo):
     tipo: str = '_no_set'
     cuerpo: Expresion = None
 
+    def TIPO(self, ambito):
+        self.cuerpo.TIPO(ambito)
+        self.cast = self.tipo 
 
 @dataclass
 class Clase(Nodo):
@@ -516,11 +553,12 @@ class Clase(Nodo):
     def TIPO(self, ambito):
         nuevoAmbito = deepcopy(ambito)
         for caracteristica in self.caracteristicas:
-            # nuevoAmbito.add(
             if isinstance(caracteristica, Metodo):
-                caracteristica.TYPE(nuevoAmbito)
+                nuevoAmbito.addMetodo(caracteristica.nombre, self.nombre,[(formal.nombre_variable, formal.tipo) for formal in caracteristica.formales]+["NOTYPE"]) # TODO
+                caracteristica.TIPO(nuevoAmbito)
             else:
                 nuevoAmbito.addVar(caracteristica.nombre, caracteristica.tipo)
+                caracteristica.TIPO(nuevoAmbito)
 
     def str(self, n):
         resultado = super().str(n)
@@ -538,11 +576,13 @@ class Clase(Nodo):
 class Metodo(Caracteristica):
     formales: List[Formal] = field(default_factory=list)
 
-    def TIPO(self, ambito): # TODO
+    def TIPO(self, ambito:Ambito): # TODO
         nuevoAmbito = deepcopy(ambito)
         for formal in self.formales:
             nuevoAmbito.addVar(formal.nombre_variable, formal.tipo)
         self.cuerpo.TIPO(nuevoAmbito)
+
+        # self.cast = self.formales[-1].cast
 
     def str(self, n):
         resultado = super().str(n)
@@ -557,8 +597,9 @@ class Metodo(Caracteristica):
 
 class Atributo(Caracteristica):
 
-    def TYPE(self, ambito): # TODO
-        
+    def TIPO(self, ambito: Ambito): # TODO
+        self.cuerpo.TIPO(ambito)
+        self.cast = "patata"
         pass
 
     def str(self, n):

@@ -104,6 +104,11 @@ class CoolParser(Parser):
     def clas(self, p): # TODO Comprobar que padre sea correcto
         return Clase(nombre=p[1], padre="Object", caracteristicas=p.feature_list, nombre_fichero=self.nombre_fichero)
 
+    @_('CLASS TYPEID "{" "}"')
+    def clas(self, p): # TODO Comprobar que padre sea correcto
+        return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero)
+
+
     @_('CLASS TYPEID INHERITS TYPEID "{" feature_list "}"')
     def clas(self, p):
         return Clase(nombre=p[1], padre=p[3], caracteristicas=p.feature_list, nombre_fichero=self.nombre_fichero)
@@ -144,7 +149,7 @@ class CoolParser(Parser):
 
     @_('OBJECTID ":" TYPEID')
     def feature(self, p):
-        return Atributo(nombre=p.OBJECTID, tipo=p.TYPEID)
+        return Atributo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=NoExpr())
 
 
     """

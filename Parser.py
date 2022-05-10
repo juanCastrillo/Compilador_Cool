@@ -81,12 +81,14 @@ class CoolParser(Parser):
                 true
                 false
     """
-
+    # Replaced
+    # return ([A-Z][a-z]*.+)\)
+    # return $1, linea=p.lineno)
     """
     PROGRAM
     """
     @_('class_list')
-    def program(self, p):
+    def program(self, p):        
         return Programa(secuencia=p.class_list)
     
     @_('class_list clas ";"')
@@ -102,16 +104,21 @@ class CoolParser(Parser):
     """
     @_('CLASS TYPEID "{" feature_list "}"')
     def clas(self, p): # TODO Comprobar que padre sea correcto
-        return Clase(nombre=p[1], padre="Object", caracteristicas=p.feature_list, nombre_fichero=self.nombre_fichero)
+        return Clase(nombre=p[1], padre="Object", caracteristicas=p.feature_list, nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
     @_('CLASS TYPEID "{" "}"')
     def clas(self, p): # TODO Comprobar que padre sea correcto
-        return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero)
+        return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
 
     @_('CLASS TYPEID INHERITS TYPEID "{" feature_list "}"')
     def clas(self, p):
-        return Clase(nombre=p[1], padre=p[3], caracteristicas=p.feature_list, nombre_fichero=self.nombre_fichero)
+        return Clase(nombre=p[1], padre=p[3], caracteristicas=p.feature_list, nombre_fichero=self.nombre_fichero, linea=p.lineno)
+
+    @_('CLASS TYPEID INHERITS TYPEID "{" "}"')
+    def clas(self, p): # TODO Comprobar que padre sea correcto
+        return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero, linea=p.lineno)
+
 
     @_('feature ";"')
     def feature_list(self, p):
@@ -128,11 +135,11 @@ class CoolParser(Parser):
     # ID( [ formal [, formal]* ] ) : TYPE { expr }
     @_('OBJECTID "(" ")" ":" TYPEID "{" expr "}"')
     def feature(self, p):
-        return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=p.expr)
+        return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=p.expr, linea=p.lineno)
 
     @_('OBJECTID "(" formal_list ")" ":" TYPEID "{" expr "}"')
     def feature(self, p):
-        return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=p.expr, formales=p.formal_list)
+        return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=p.expr, formales=p.formal_list, linea=p.lineno)
 
     @_('formal')
     def formal_list(self, p):
@@ -145,11 +152,11 @@ class CoolParser(Parser):
     # ID:TYPE [ <- expr ]
     @_('OBJECTID ":" TYPEID ASSIGN expr')
     def feature(self, p):
-        return Atributo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=p.expr)
+        return Atributo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=p.expr, linea=p.lineno)
 
     @_('OBJECTID ":" TYPEID')
     def feature(self, p):
-        return Atributo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=NoExpr())
+        return Atributo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=NoExpr(), linea=p.lineno)
 
 
     """
@@ -157,7 +164,7 @@ class CoolParser(Parser):
     """
     @_('OBJECTID ":" TYPEID')
     def formal(self, p):
-        return Formal(nombre_variable=p.OBJECTID, tipo=p.TYPEID)
+        return Formal(nombre_variable=p.OBJECTID, tipo=p.TYPEID, linea=p.lineno)
 
 
     """
@@ -165,28 +172,28 @@ class CoolParser(Parser):
     """
     @_('OBJECTID ASSIGN expr')
     def expr(self, p):
-        return Asignacion(nombre=p[0], cuerpo=p[2])
+        return Asignacion(nombre=p[0], cuerpo=p[2], linea=p.lineno)
 
     # expr[@TYPE].ID( [ expr [, expr]* ] )
     @_('OBJECTID "(" ")"') 
     def expr(self, p):
-        return LlamadaMetodo(cuerpo=Objeto(nombre="self"), nombre_metodo=p.OBJECTID)
+        return LlamadaMetodo(cuerpo=Objeto(nombre="self"), nombre_metodo=p.OBJECTID, linea=p.lineno)
     
     @_('expr "." OBJECTID "(" ")"') 
     def expr(self, p):
-        return LlamadaMetodo(cuerpo=p.expr, nombre_metodo=p.OBJECTID)
+        return LlamadaMetodo(cuerpo=p.expr, nombre_metodo=p.OBJECTID, linea=p.lineno)
 
     @_('expr "@" TYPEID "." OBJECTID "(" ")"') 
     def expr(self, p):
-        return LlamadaMetodoEstatico(cuerpo=p.expr, clase=p.TYPEID, nombre_metodo=p.OBJECTID)
+        return LlamadaMetodoEstatico(cuerpo=p.expr, clase=p.TYPEID, nombre_metodo=p.OBJECTID, linea=p.lineno)
 
     @_('expr "." OBJECTID "(" arg_list ")"') 
     def expr(self, p):
-        return LlamadaMetodo(cuerpo=p.expr, nombre_metodo=p.OBJECTID, argumentos=p.arg_list)
+        return LlamadaMetodo(cuerpo=p.expr, nombre_metodo=p.OBJECTID, argumentos=p.arg_list, linea=p.lineno)
 
     @_('expr "@" TYPEID "." OBJECTID "(" arg_list ")"')
     def expr(self, p):
-        return LlamadaMetodoEstatico(cuerpo=p.expr, clase=p.TYPEID, nombre_metodo=p.OBJECTID, argumentos=p.arg_list)
+        return LlamadaMetodoEstatico(cuerpo=p.expr, clase=p.TYPEID, nombre_metodo=p.OBJECTID, argumentos=p.arg_list, linea=p.lineno)
 
     @_('expr') # TODO - Quiza haya que incluir los parentesis aqui y no en el metodo de arriba
     def arg_list(self, p):
@@ -200,25 +207,25 @@ class CoolParser(Parser):
     #  ID( [ expr [, expr]* ] )
     @_(' OBJECTID "(" arg_list ")"') # TODO - cuerpo no existe
     def expr(self, p):
-        return LlamadaMetodo(cuerpo=Objeto(nombre="self"), nombre_metodo=p.OBJECTID, argumentos=p.arg_list)
+        return LlamadaMetodo(cuerpo=Objeto(nombre="self"), nombre_metodo=p.OBJECTID, argumentos=p.arg_list, linea=p.lineno)
 
     # @_(' OBJECTID "(" ")"') 
     # def expr(self, p):
-    #     return LlamadaMetodo(nombre_metodo=p.OBJECTID) 
+    #     return LlamadaMetodo(nombre_metodo=p.OBJECTID, linea=p.lineno) 
     ##
 
     @_('IF expr THEN expr ELSE expr FI')
     def expr(self, p):
-        return Condicional(condicion=p[1], verdadero=p[3], falso=p[5])
+        return Condicional(condicion=p[1], verdadero=p[3], falso=p[5], linea=p.lineno)
 
     @_('WHILE expr LOOP expr POOL')
     def expr(self, p):
-        return Bucle(condicion=p[1], cuerpo=p[3])
+        return Bucle(condicion=p[1], cuerpo=p[3], linea=p.lineno)
 
     # { [expr; ]+ } Una o mas expresión entre llaves separadas por ;
     @_('"{" expresion_list "}"')
     def expr(self, p):
-        return Bloque(expresiones=p.expresion_list)
+        return Bloque(expresiones=p.expresion_list, linea=p.lineno)
 
     @_('expr ";"')
     def expresion_list(self, p):
@@ -237,31 +244,31 @@ class CoolParser(Parser):
         x = p.expr
         for assignT in reversed(p.assign_list):
             x = Let(nombre=assignT[0], 
-                tipo=assignT[1], inicializacion=assignT[2], cuerpo=x)
+                tipo=assignT[1], inicializacion=assignT[2], cuerpo=x, linea=p[3]) # TODO linea
         return x
 
     # ID:TYPE [ <- expr ] [,ID:TYPE [ <- expr ]]*
     @_('OBJECTID ":" TYPEID ASSIGN expr')
     def assign_list(self, p):
-        return [(p.OBJECTID, p.TYPEID, p.expr)]
+        return [(p.OBJECTID, p.TYPEID, p.expr, p.lineno)]
 
     @_('OBJECTID ":" TYPEID')
     def assign_list(self, p):
-        return [(p.OBJECTID, p.TYPEID, NoExpr())]
+        return [(p.OBJECTID, p.TYPEID, NoExpr(), p.lineno)]
 
     @_('assign_list "," OBJECTID ":" TYPEID')
     def assign_list(self, p):
-        return p.assign_list + [(p.OBJECTID, p.TYPEID, NoExpr())]
+        return p.assign_list + [(p.OBJECTID, p.TYPEID, NoExpr(), p.lineno)]
 
     @_('assign_list "," OBJECTID ":" TYPEID ASSIGN expr')
     def assign_list(self, p):
-        return p.assign_list + [(p.OBJECTID, p.TYPEID, p.expr)]
+        return p.assign_list + [(p.OBJECTID, p.TYPEID, p.expr, p.lineno)]
     #
 
     # case expr of [ID : TYPE => expr; ]+ esac
     @_('CASE expr OF case_list ESAC')
     def expr(self, p):
-        return Swicht(expr=p.expr, casos=p.case_list)
+        return Swicht(expr=p.expr, casos=p.case_list, linea=p.lineno)
 
     @_('OBJECTID ":" TYPEID DARROW expr ";"')
     def case_list(self, p):
@@ -269,52 +276,52 @@ class CoolParser(Parser):
 
     @_('case_list OBJECTID ":" TYPEID DARROW expr ";"')
     def case_list(self, p):
-        return p.case_list + [RamaCase(nombre_variable=p.OBJECTID, tipo=p.TYPEID, cuerpo=p.expr)]
+        return p.case_list + [RamaCase(nombre_variable=p.OBJECTID, tipo=p.TYPEID, cuerpo=p.expr, linea=p.lineno)]
     #
 
     @_("NEW TYPEID")
     def expr(self, p):
-        return Nueva(tipo=p.TYPEID)
+        return Nueva(tipo=p.TYPEID, linea=p.lineno)
 
     @_("ISVOID expr")
     def expr(self, p):
-        return EsNulo(expr=p.expr)
+        return EsNulo(expr=p.expr, linea=p.lineno)
 
     @_('expr "+" expr')
     def expr(self, p):
-        return Suma(izquierda=p[0], derecha=p[2])
+        return Suma(izquierda=p[0], derecha=p[2], linea=p.lineno)
 
     @_('expr "-" expr')
     def expr(self, p):
-        return Resta(izquierda=p[0], derecha=p[2])
+        return Resta(izquierda=p[0], derecha=p[2], linea=p.lineno)
 
     @_('expr "*" expr')
     def expr(self, p):
-        return Multiplicacion(izquierda=p[0], derecha=p[2])
+        return Multiplicacion(izquierda=p[0], derecha=p[2], linea=p.lineno)
 
     @_('expr "/" expr')
     def expr(self, p):
-        return Division(izquierda=p[0], derecha=p[2])
+        return Division(izquierda=p[0], derecha=p[2], linea=p.lineno)
 
     @_('"~" expr')
     def expr(self, p):
-        return Neg(expr=p.expr)
+        return Neg(expr=p.expr, linea=p.lineno)
 
     @_('expr "<" expr')
     def expr(self, p):
-        return Menor(izquierda=p[0], derecha=p[2])
+        return Menor(izquierda=p[0], derecha=p[2], linea=p.lineno)
 
     @_('expr LE expr')
     def expr(self, p):
-        return LeIgual(izquierda=p[0], derecha=p[2])
+        return LeIgual(izquierda=p[0], derecha=p[2], linea=p.lineno)
 
     @_('expr "=" expr')
     def expr(self, p):
-        return Igual(izquierda=p[0], derecha=p[2])
+        return Igual(izquierda=p[0], derecha=p[2], linea=p.lineno)
 
     @_('NOT expr')
     def expr(self, p):
-        return Not(expr=p.expr)
+        return Not(expr=p.expr, linea=p.lineno)
 
     @_('"(" expr ")"')
     def expr(self, p):
@@ -322,19 +329,19 @@ class CoolParser(Parser):
 
     @_('OBJECTID')
     def expr(self, p):
-        return Objeto(nombre=p.OBJECTID)
+        return Objeto(nombre=p.OBJECTID, linea=p.lineno)
 
     @_('INT_CONST')
     def expr(self, p):
-        return Entero(valor=p.INT_CONST)
+        return Entero(valor=p.INT_CONST, linea=p.lineno)
 
     @_('STR_CONST')
     def expr(self, p):
-        return String(valor=p.STR_CONST) 
+        return String(valor=p.STR_CONST, linea=p.lineno) 
 
     @_('BOOL_CONST')
     def expr(self, p):
-        return Booleano(valor=p.BOOL_CONST)
+        return Booleano(valor=p.BOOL_CONST, linea=p.lineno)
 
 
     '''
@@ -356,7 +363,7 @@ class CoolParser(Parser):
     # No puede hacer un bloque vacio {}
     @_('"{" error "}"')#@_('OBJECTID "(" ")" ":" TYPEID "{" error "}"')
     def feature(self, p):
-        return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=NoExpr())
+        return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=NoExpr(), linea=p.lineno)
 
     @_('formal_list error formal')
     def formal_list(self, p):
@@ -365,16 +372,16 @@ class CoolParser(Parser):
     # bar(x:Int;y:Int):Int {if true then 4 fi};
     @_('IF expr THEN expr ELSE expr error')
     def expr(self, p):
-        return Condicional(condicion=p[1], verdadero=p[3], falso=p[5])
+        return Condicional(condicion=p[1], verdadero=p[3], falso=p[5], linea=p.lineno)
 
     @_('IF expr THEN expr error FI')
     def expr(self, p):
-        return Condicional(condicion=p[1], verdadero=p[3], falso=p[5])
+        return Condicional(condicion=p[1], verdadero=p[3], falso=p[5], linea=p.lineno)
 
     # casenoexpr.test
     @_('CASE error OF case_list ESAC')
     def expr(self, p):
-        return Swicht(expr=NoExpr(), casos=p.case_list)
+        return Swicht(expr=NoExpr(), casos=p.case_list, linea=p.lineno)
 
     # bar():Int{{let a:Int<-Bork, b:Int<-5, c:Int<-6 in a + B;}};
     @_('OBJECTID ":" TYPEID ASSIGN error')
@@ -383,11 +390,11 @@ class CoolParser(Parser):
 
     @_('assign_list "," OBJECTID ":" TYPEID ASSIGN error')
     def assign_list(self, p):
-        return p.assign_list + [(p.OBJECTID, p.TYPEID, NoExpr())]
+        return p.assign_list + [(p.OBJECTID, p.TYPEID, NoExpr(), p.lineno)]
 
     @_('OBJECTID ":" error')
     def feature(self, p):
-        return Atributo(nombre=p.OBJECTID, tipo="Object")
+        return Atributo(nombre=p.OBJECTID, tipo="Object", linea=p.lineno)
 
     @_('error ";"')
     def feature_list(self, p):
@@ -399,12 +406,12 @@ class CoolParser(Parser):
 
     @_('CLASS TYPEID "{" error "}"')
     def clas(self, p): # TODO Comprobar que padre sea correcto
-        return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero)
+        return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
     # ID( [ formal [, formal]* ] ) : TYPE { expr }
     @_('OBJECTID "(" ")" ":" TYPEID "{" error "}"')
     def feature(self, p):
-        return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=NoExpr())
+        return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=NoExpr(), linea=p.lineno)
 
     @_('feature error')
     def feature_list(self, p):

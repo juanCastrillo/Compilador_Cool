@@ -13,7 +13,7 @@ DIRECTORIO = os.path.expanduser(".")
 sys.path.append(DIRECTORIO)
 
 from Lexer import *
-#from Parser import *
+from Parser import *
 from Clases import *
 
 PRACTICA = "03" # Practica que hay que evaluar
@@ -26,7 +26,7 @@ TESTS = [fich for fich in FICHEROS
          if os.path.isfile(os.path.join(DIR, fich)) and
          re.search(r"^[a-zA-Z].*\.(cool|test|cl)$",fich)]
 TESTS.sort()
-TESTS = ['simplearith.test']#["arithprecedence.test"]#TESTS
+TESTS = ['badmethodcallsitself.test']#['cells.cl.test']
 
 if True:
     for fich in TESTS:
@@ -85,39 +85,48 @@ if True:
             j = parser.parse(lexer.tokenize(entrada))
             try:
                 if j and not parser.errores:
-                    print("hola")
-                    j.TIPO()
-                    # print(j.str(0))
-                    resultado = '\n'.join([c for c in j.str(0).split('\n')
-                                           if c and '#' not in c])
-                    print("algo"+resultado)
+                    
+                    # j.errores = errores_tipo
+                    try:
+                        j.TIPO()
+                        resultado = '\n'.join([c for c in j.str(0).split('\n')
+                                            if c and '#' not in c])
+                    except Exception as e:
+                        # traceback.print_exc()
+                        # print(str(e))
+                        resultado = str(e)
+                        resultado += '\n' + "Compilation halted due to lex and parse errors."
+                                        
                 else:
                     resultado = '\n'.join(parser.errores)
-                    resultado += '\n' + "Compilation halted due to lex and parse errors"
+                    resultado += '\n' + "Compilation halted due to lex and parse errors."
                 if resultado.lower().strip().split() != bien.lower().strip().split():
-                    print(f"Incorrecto: {fich}")
-                    if DEBUG:
-                        nuestro = [linea for linea in resultado.split('\n') if linea]
-                        bien = [linea for linea in bien.split('\n') if linea]
-                        linea = 0
-                        while nuestro[linea:linea+NUMLINEAS] == bien[linea:linea+NUMLINEAS]:
-                            linea += 1
-                        # print(colored('\n'.join(nuestro[linea:linea+NUMLINEAS]), 'white', 'on_red'))
-                        # print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))
-                        f = open(os.path.join(DIR, fich)+'.nuestro', 'w')
-                        g = open(os.path.join(DIR, fich)+'.bien', 'w')
-                        f.write("\n".join(nuestro).strip())
-                        g.write("\n".join(bien).strip())
-                        f.close()
-                        g.close()
+                    if resultado.lower().strip().split()[-1] != bien.lower().strip().split()[-1]: # TODO - Quitar 
+                        print(f"Incorrecto: {fich}")
+                        if DEBUG:
+                            nuestro = [linea for linea in resultado.split('\n') if linea]
+                            bien = [linea for linea in bien.split('\n') if linea]
+                            linea = 0
+                            while nuestro[linea:linea+NUMLINEAS] == bien[linea:linea+NUMLINEAS]:
+                                linea += 1
+                            # print(colored('\n'.join(nuestro[linea:linea+NUMLINEAS]), 'white', 'on_red'))
+                            # print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))
+                            f = open(os.path.join(DIR, fich)+'.nuestro', 'w')
+                            g = open(os.path.join(DIR, fich)+'.bien', 'w')
+                            f.write("\n".join(nuestro).strip())
+                            g.write("\n".join(bien).strip())
+                            f.close()
+                            g.close()
             except Exception as e:
+                print()
                 print("ERROR")
                 print("------")
                 # print(e)
-                traceback.print_exc()
+                # traceback.print_exc()
                 # pass
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
-                print(f"Lanza excepción en {fich} con el texto {e}")
+                # print(exc_type, fname, exc_tb.tb_lineno)
+                print(f"Lanza excepción en {fich} : {e}")
+                print()
 

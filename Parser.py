@@ -27,7 +27,6 @@ class CoolParser(Parser):
     <-
     """
     # from highest to lowest 
-    # TODO - Al reves
     # Si no se define una prioridad entonces se avanza siempre (seguir añadiendo a la pila)
     precedence = ( # Menos a mas importancia (prioridad)
         
@@ -103,11 +102,11 @@ class CoolParser(Parser):
     CLASS
     """
     @_('CLASS TYPEID "{" feature_list "}"')
-    def clas(self, p): # TODO Comprobar que padre sea correcto
+    def clas(self, p): 
         return Clase(nombre=p[1], padre="Object", caracteristicas=p.feature_list, nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
     @_('CLASS TYPEID "{" "}"')
-    def clas(self, p): # TODO Comprobar que padre sea correcto
+    def clas(self, p): 
         return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
 
@@ -116,7 +115,7 @@ class CoolParser(Parser):
         return Clase(nombre=p[1], padre=p[3], caracteristicas=p.feature_list, nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
     @_('CLASS TYPEID INHERITS TYPEID "{" "}"')
-    def clas(self, p): # TODO Comprobar que padre sea correcto
+    def clas(self, p): 
         return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
 
@@ -195,7 +194,7 @@ class CoolParser(Parser):
     def expr(self, p):
         return LlamadaMetodoEstatico(cuerpo=p.expr, clase=p.TYPEID, nombre_metodo=p.OBJECTID, argumentos=p.arg_list, linea=p.lineno)
 
-    @_('expr') # TODO - Quiza haya que incluir los parentesis aqui y no en el metodo de arriba
+    @_('expr')
     def arg_list(self, p):
         return [p.expr]
 
@@ -205,7 +204,7 @@ class CoolParser(Parser):
     ##
 
     #  ID( [ expr [, expr]* ] )
-    @_(' OBJECTID "(" arg_list ")"') # TODO - cuerpo no existe
+    @_(' OBJECTID "(" arg_list ")"')
     def expr(self, p):
         return LlamadaMetodo(cuerpo=Objeto(nombre="self"), nombre_metodo=p.OBJECTID, argumentos=p.arg_list, linea=p.lineno)
 
@@ -244,7 +243,7 @@ class CoolParser(Parser):
         x = p.expr
         for assignT in reversed(p.assign_list):
             x = Let(nombre=assignT[0], 
-                tipo=assignT[1], inicializacion=assignT[2], cuerpo=x, linea=p[3]) # TODO linea
+                tipo=assignT[1], inicializacion=assignT[2], cuerpo=x, linea=p[3])
         return x
 
     # ID:TYPE [ <- expr ] [,ID:TYPE [ <- expr ]]*
@@ -268,7 +267,7 @@ class CoolParser(Parser):
     # case expr of [ID : TYPE => expr; ]+ esac
     @_('CASE expr OF case_list ESAC')
     def expr(self, p):
-        return Swicht(expr=p.expr, casos=p.case_list, linea=p.lineno)
+        return Switch(expr=p.expr, casos=p.case_list, linea=p.lineno)
 
     @_('OBJECTID ":" TYPEID DARROW expr ";"')
     def case_list(self, p):
@@ -346,15 +345,7 @@ class CoolParser(Parser):
 
     '''
     ERRORS
-    # hay que añadir el keyword error en la string del método
     '''
-    # @_('expr error') # TODO - Not working # badfeatures.test
-    # def expresion_list(self, p):
-    #     return [p.expr]
-
-    # @_('expresion_list expr error') # TODO - Not working # badfeatures.test
-    # def expresion_list(self, p):
-    #     return p[0] + [p[1]]
 
     @_('error ";"')
     def expresion_list(self, p):
@@ -381,7 +372,7 @@ class CoolParser(Parser):
     # casenoexpr.test
     @_('CASE error OF case_list ESAC')
     def expr(self, p):
-        return Swicht(expr=NoExpr(), casos=p.case_list, linea=p.lineno)
+        return Switch(expr=NoExpr(), casos=p.case_list, linea=p.lineno)
 
     # bar():Int{{let a:Int<-Bork, b:Int<-5, c:Int<-6 in a + B;}};
     @_('OBJECTID ":" TYPEID ASSIGN error')
@@ -405,7 +396,7 @@ class CoolParser(Parser):
     #     return p[0] + [p[1]]
 
     @_('CLASS TYPEID "{" error "}"')
-    def clas(self, p): # TODO Comprobar que padre sea correcto
+    def clas(self, p): 
         return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
     # ID( [ formal [, formal]* ] ) : TYPE { expr }
@@ -425,7 +416,6 @@ class CoolParser(Parser):
         # line 3: syntax error at or near ':'
         # Token(type='TYPEID', value='A', lineno=4, index=40)
         if not p:
-            # TODO - A;adir mensaje de error vacio
             # "emptyprogram.test", line 0: syntax error at or near EOF
             self.errores.append(f'"{self.nombre_fichero}", line 0: syntax error at or near EOF')
         else:
@@ -445,8 +435,6 @@ class CoolParser(Parser):
                 ASSIGN # <-
             }
             '''
-            # TODO - En funcion de lo que sea hay que cambiar el mensaje de error
-            # TODO - En funcion de p.type
             # print(CoolLexer.literals)
             if p.type == "TYPEID" or p.type == "OBJECTID" or p.type == "INT_CONST":
                 # "badblock.test", line 4: syntax error at or near TYPEID = A

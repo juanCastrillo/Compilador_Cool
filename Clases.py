@@ -6,6 +6,9 @@ from typing import List
 
 errores_tipo = []
 
+class CodeError(Exception):
+    pass
+
 @dataclass
 class Nodo:
     linea: int = 0
@@ -44,10 +47,10 @@ class Asignacion(Expresion):
 
     def TIPO(self, ambito):
         self.cuerpo.TIPO(ambito)
-        sc = self.cuerpo.cast # TODO - Ver si se puede hacer sin dar tipo inicial
+        sc = self.cuerpo.cast
         t = ambito.tipoVar(self.nombre) 
         if t != sc:
-            raise Exception(f"Tipo de asignación no coincide con el designado para la variable: {t} != {sc}")
+            raise CodeError(f"Tipo de asignación no coincide con el designado para la variable: {t} != {sc}")
             # cells <- (new CellularAutomaton).init("         X         ");
 
     def str(self, n):
@@ -65,6 +68,22 @@ class LlamadaMetodoEstatico(Expresion):
     clase: str = '_no_type'
     nombre_metodo: str = '_no_set'
     argumentos: List[Expresion] = field(default_factory=list)
+
+    def TIPO(self, ambito):
+        # TODO - No entiendo la sintaxis del metodo estatico.
+        
+        # Copiado de LlamadaMetodo
+        self.cuerpo.TIPO(ambito)
+        argsFirma = ambito.argumentos(self.clase, self.nombre_metodo)
+    
+        tipo = argsFirma[-1]
+        args = argsFirma[:-1]
+ 
+        for arg, argF in zip(self.argumentos, args): # Compruebo que el tipo de los argumentos pasados sea el correcto
+            arg.TIPO(ambito)
+            if arg.cast != argF:
+                raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argF}")
+        self.cast = tipo
 
     def str(self, n):
         resultado = super().str(n)
@@ -88,15 +107,16 @@ class LlamadaMetodo(Expresion):
     def TIPO(self, ambito):
         self.cuerpo.TIPO(ambito)
         argsFirma = ambito.argumentos(self.cuerpo.cast, self.nombre_metodo)
-        # TODO - Quiza calcular tipo de los argumentos? for self.argumentos .TIPO()
+        # TODO - Ver si el metodo existe antes de llamarlo
+    
         tipo = argsFirma[-1]
         args = argsFirma[:-1]
-        if tipo == ('map', 'String'):
-            print(1)
+        # if tipo == ('map', 'String'):
+        #     print(1)
         for arg, argF in zip(self.argumentos, args): # Compruebo que el tipo de los argumentos pasados sea el correcto
             arg.TIPO(ambito)
-            if arg.cast != argF: # TODO
-                raise Exception(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argF[1]}")
+            if arg.cast != argF:
+                raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argF}")
         self.cast = tipo
         '''
         def argumentos(self, clase, metodo):
@@ -142,6 +162,13 @@ class Bucle(Expresion):
     condicion: Expresion = None
     cuerpo: Expresion = None
 
+    def TIPO(self, ambito):
+        self.condicion.TIPO(ambito)
+        if self.condicion.cast != "Bool":
+            raise CodeError("Condición del bucle while no es un Bool.")
+        self.cuerpo.TIPO(ambito)
+        self.cast = self.cuerpo.cast
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_loop\n'
@@ -157,6 +184,23 @@ class Let(Expresion):
     tipo: str = '_no_set'
     inicializacion: Expresion = None
     cuerpo: Expresion = None
+
+    def TIPO(self, ambito):
+        # TODO - todos los cuerpos del let comparten ambito o va para arriba o va para abajo
+        # TODO - Las variables del let se comparten con el exterior?
+        # El cuerpo tiene el nuevo ambito para evaluar el nombre tipo e inicializacion\
+        # let nombre:tipo in 
+        #   let nombre2:tipo2 in
+        #       let ...
+        nuevoAmbito = deepcopy(ambito)
+        cuerpo = self.cuerpo
+        nuevoAmbito.addVar(self.nombre,self.tipo)
+        if isinstance(cuerpo, Let):
+            nuevoAmbito.addVar(cuerpo.nombre, cuerpo.tipo)
+            cuerpo = cuerpo.cuerpo
+            
+        cuerpo.TIPO(nuevoAmbito)
+        self.cast = cuerpo.cast
 
     def str(self, n):
         resultado = super().str(n)
@@ -193,6 +237,10 @@ class RamaCase(Nodo):
     nombre_variable: str = '_no_set'
     tipo: str = '_no_set'
     cuerpo: Expresion = None
+    cast: str = '_no_type'
+
+    def TIPO(self, ambito):
+        self.cast = self.tipo
 
     def str(self, n):
         resultado = super().str(n)
@@ -205,9 +253,25 @@ class RamaCase(Nodo):
 
 
 @dataclass
-class Swicht(Nodo):
+class Switch(Nodo):
     expr: Expresion = None
     casos: List[RamaCase] = field(default_factory=list)
+
+    def TIPO(self, ambito):
+        # TODO - El tipo del switch varia en funcion de la rama que se tome al evaluar la expr
+        nuevoAmbito = deepcopy(ambito)
+        self.expr.TIPO(nuevoAmbito)
+        # TODO - Si el tipo de expr es void lanzo excepcion
+        '''
+        TODO
+        Each branch of a case is type checked in an environment where variable xi has type Ti. 
+        The type of the entire case is the join of the types of its branches. 
+        The variables declared on each branch of a case must all have distinct types.
+        TODO - Como junto los tipos?
+        '''
+        for caso in self.casos:
+            caso.TIPO(nuevoAmbito)
+            self.cast = caso.cast # TODO
 
     def str(self, n):
         resultado = super().str(n)
@@ -220,6 +284,7 @@ class Swicht(Nodo):
 @dataclass
 class Nueva(Nodo):
     tipo: str = '_no_set'
+    cast: str = '_no_type'
 
     def TIPO(self, ambito):
         self.cast = self.tipo
@@ -244,7 +309,7 @@ class OperacionBinaria(Expresion):
         if self.izquierda.cast == self.derecha.cast:
             self.cast = self.izquierda.cast
         else:
-            raise Exception(f"Left and right are not same type: {self.izquierda} operator {self.derecha}")
+            raise CodeError(f"Left and right are not same type: {self.izquierda} operator {self.derecha}")
 
 
 @dataclass
@@ -254,11 +319,12 @@ class Suma(OperacionBinaria):
     def TIPO(self, ambito):
         self.izquierda.TIPO(ambito)
         self.derecha.TIPO(ambito)
-        if self.izquierda.cast == "Int": # TODO - Cambiar
+        # TODO - Cambiar como estan hechos los condicionales
+        if self.izquierda.cast == "Int": 
             if self.derecha.cast == "Int": 
                 self.cast = "Int"
             else:
-                raise Exception(f"No se pueden sumar {self.izquierda.cast} + {self.derecha.cast}")
+                raise CodeError(f"No se pueden sumar {self.izquierda.cast} + {self.derecha.cast}")
                 #self.cast = "Object"
         else:
                 self.cast = "Object"
@@ -345,7 +411,7 @@ class Igual(OperacionBinaria):
         self.izquierda.TIPO(ambito)
         self.derecha.TIPO(ambito)
         if self.izquierda.cast != self.derecha.cast:
-            raise Exception(f"No se pueden comparar tipos {self.izquierda.cast} y {self.derecha.cast}")
+            raise CodeError(f"No se pueden comparar tipos {self.izquierda.cast} y {self.derecha.cast}")
         self.cast = "Bool"
 
     def str(self, n):
@@ -434,7 +500,7 @@ class Entero(Expresion):
 
     def TIPO(self, ambito):
         # Los atributos del padre
-        self.cast = "Int" # TODO - Ajustarlo
+        self.cast = "Int" 
 
     def str(self, n):
         resultado = super().str(n)
@@ -450,7 +516,7 @@ class String(Expresion):
 
     def TIPO(self, ambito):
         # Los atributos del padre
-        self.cast = "String" # TODO - Ajustarlo
+        self.cast = "String"
 
     def str(self, n):
         resultado = super().str(n)
@@ -520,9 +586,9 @@ class Ambito():
         self.metodos = {
             ("Object", "abort"): ["Object"],
             ("Object", "type_name"): ["String"],
-            ("Object", "copy"): ["SELF_TYPE"], # TODO
+            ("Object", "copy"): ["SELF_TYPE"],
 
-            ("String", "length"): ["Int"], # TODO
+            ("String", "length"): ["Int"],
             ("String", "concat"): ["String", "String"],
             ("String", "substr"): ["Int", "Int", "String"],
 
@@ -537,12 +603,17 @@ class Ambito():
     
     def addClase(self, clase, padre): 
         if clase in self.herencia:
-            raise Exception(f"No se puede sobreescribir la clase {clase}")
+            raise CodeError(f"No se puede sobreescribir la clase {clase}")
         self.herencia[clase] =  padre
 
     def setClaseActual(self, clase): 
         self.claseActual = clase
 
+    '''
+    Crea estructura de variables para las clases que no son la actual por si
+    hay que realizar herencia.
+    var: (nombre, tipo)
+    '''
     def addVarHerencia(self, var, clase):
         self.variablesClase[clase].add(var)
 
@@ -573,10 +644,10 @@ class Ambito():
     TODO - Hay que añadir los parámetros a las variables??
         metodo: nombre del metodo a añadir
         clase: nombre de la clase a añadir
-        argumentos: [(name : type), (n2 : t2), ...]
+        argumentos: [(name : type), (n2 : t2), ..., tipoRetorno]
     '''
     def addMetodo(self, metodo, clase, argumentos): 
-        self.metodos[(clase, metodo)] = argumentos # TODO - argumentos 
+        self.metodos[(clase, metodo)] = argumentos
 
     '''
     returns: argumentos del metodo indicado
@@ -586,7 +657,7 @@ class Ambito():
         while (clase, metodo) not in self.metodos: #
             cp = self.padre(clase)
             if clase == cp:
-                raise Exception(f"Método no encontrado: {claseOriginal}, {metodo}") 
+                raise CodeError(f"Método no encontrado: {claseOriginal}, {metodo}") 
             clase = cp
         tipo = self.metodos[(clase, metodo)][-1]
         if tipo == "SELF_TYPE":
@@ -598,14 +669,17 @@ class Ambito():
     def addVar(self, nombreVar, tipo, clase = None):
         # Palabra reservada
         if nombreVar in self.palabrasReservadas:
-            raise Exception(f"Nombre de variable no permitido: {nombreVar}")
+            raise CodeError(f"Nombre de variable no permitido: {nombreVar}")
         if clase:
             # Nombre de variable ya registrado en herencia
             clase = self.padre(clase)
-            while nombreVar not in self.variablesClase[clase] and clase != "Object":
+            found = False
+            while not found and clase != "Object":
+                for v, _ in self.variablesClase[clase]: # Busco si el padre tiene una variable con el mismo nombre
+                    if v == nombreVar: found = True; break
                 clase = self.padre(clase)
-            if nombreVar in self.variablesClase[clase]: 
-                raise Exception(f"Variable ya definida {nombreVar}, {clase}")
+            if found: 
+                raise CodeError(f"Variable ya definida {nombreVar}, {clase}")
         
         # Correcto
         self.variables[nombreVar] = tipo
@@ -614,7 +688,7 @@ class Ambito():
         if nombreVar == "self": return self.claseActual
 
         if nombreVar not in self.variables:
-            raise Exception(f"Variable '{nombreVar}' no definida")
+            raise CodeError(f"Variable '{nombreVar}' no definida")
         
         return self.variables[nombreVar]
 
@@ -627,9 +701,10 @@ class Programa(IterableNodo):
             ambito.addClase(clase.nombre, clase.padre)
             for caracteristica in clase.caracteristicas:
                 if isinstance(caracteristica, Metodo): # TODO añadir bien la caracteristica
-                    ambito.addMetodo(caracteristica.nombre, clase.nombre, [formal.tipo for formal in caracteristica.formales]) #[(formal.nombre_variable, formal.tipo) for formal in caracteristica.formales])
+                    ambito.addMetodo(caracteristica.nombre, clase.nombre, [formal.tipo for formal in caracteristica.formales] + [caracteristica.tipo]) #[(formal.nombre_variable, formal.tipo) for formal in caracteristica.formales])
                 else: # Atributo (Variable)
-                    ambito.addVarHerencia(caracteristica.nombre, clase.nombre) # Para después la herencia
+                    caracteristica.TIPO(ambito)
+                    ambito.addVarHerencia((caracteristica.nombre, caracteristica.cast), clase.nombre) # Para después la herencia
         for clase in self.secuencia:
             clase.TIPO(ambito)
 
@@ -663,7 +738,7 @@ class Clase(Nodo):
             nuevoAmbito.mudarVariablesPadre(self.padre)
         for caracteristica in self.caracteristicas:
             if isinstance(caracteristica, Metodo):
-                # nuevoAmbito.addMetodo(caracteristica.nombre, self.nombre,[(formal.nombre_variable, formal.tipo) for formal in caracteristica.formales]+["NOTYPE"]) # TODO
+                # nuevoAmbito.addMetodo(caracteristica.nombre, self.nombre,[(formal.nombre_variable, formal.tipo) for formal in caracteristica.formales]+["NOTYPE"]) 
                 caracteristica.TIPO(nuevoAmbito)
             else: # Atributo
                 nuevoAmbito.addVar(caracteristica.nombre, caracteristica.tipo, self.nombre)
@@ -685,7 +760,7 @@ class Clase(Nodo):
 class Metodo(Caracteristica):
     formales: List[Formal] = field(default_factory=list)
 
-    def TIPO(self, ambito:Ambito): # TODO
+    def TIPO(self, ambito:Ambito):
         nuevoAmbito = deepcopy(ambito)
         for formal in self.formales:
             nuevoAmbito.addVar(formal.nombre_variable, formal.tipo)
@@ -706,15 +781,15 @@ class Metodo(Caracteristica):
 
 class Atributo(Caracteristica):
 
-    def TIPO(self, ambito: Ambito): # TODO
+    def TIPO(self, ambito: Ambito):
         self.cuerpo.TIPO(ambito)
         sc = self.cuerpo.cast
         if sc != "_no_type":
             # si el tipo no es igual al del cuerpo 
             # o
             # el tipo no es padre del cuerpo
-            if self.tipo != sc and not ambito.esPadre(self.tipo, sc):  # TODO - Incluir herencia            
-                raise Exception(f"Tipo definido no es igual al del valor: {self.tipo} != {sc}")
+            if self.tipo != sc and not ambito.esPadre(self.tipo, sc):
+                raise CodeError(f"Tipo definido no es igual al del valor: {self.tipo} != {sc}")
         
         self.cast = self.tipo
 

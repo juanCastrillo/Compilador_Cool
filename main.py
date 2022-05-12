@@ -26,7 +26,7 @@ TESTS = [fich for fich in FICHEROS
          if os.path.isfile(os.path.join(DIR, fich)) and
          re.search(r"^[a-zA-Z].*\.(cool|test|cl)$",fich)]
 TESTS.sort()
-TESTS = ['badmethodcallsitself.test']#['cells.cl.test']
+# TESTS = ['badargs1.test']#['cells.cl.test']
 
 if True:
     for fich in TESTS:
@@ -92,8 +92,14 @@ if True:
                         resultado = '\n'.join([c for c in j.str(0).split('\n')
                                             if c and '#' not in c])
                     except Exception as e:
+                        if isinstance(e, CodeError):
+                            # print(f"Exception {fich}")
                         # traceback.print_exc()
-                        # print(str(e))
+                            # print(str(e))
+                            print()
+                        else:
+                            traceback.print_exc()
+                            print(str(e))
                         resultado = str(e)
                         resultado += '\n' + "Compilation halted due to lex and parse errors."
                                         
@@ -101,7 +107,7 @@ if True:
                     resultado = '\n'.join(parser.errores)
                     resultado += '\n' + "Compilation halted due to lex and parse errors."
                 if resultado.lower().strip().split() != bien.lower().strip().split():
-                    if resultado.lower().strip().split()[-1] != bien.lower().strip().split()[-1]: # TODO - Quitar 
+                    if resultado.lower().strip().split()[-1] != bien.lower().strip().split()[-1]: # TODO - Quitar, es porque mis output de error no coinciden con los de out
                         print(f"Incorrecto: {fich}")
                         if DEBUG:
                             nuestro = [linea for linea in resultado.split('\n') if linea]

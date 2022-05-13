@@ -16,7 +16,7 @@ from Lexer import *
 from Parser import *
 from Clases import *
 
-PRACTICA = "03" # Practica que hay que evaluar
+PRACTICA = "01" # Practica que hay que evaluar
 DEBUG = True   # Decir si se lanzan mensajes de debug
 NUMLINEAS = 3   # Numero de lineas que se muestran antes y después de la no coincidencia
 sys.path.append(DIRECTORIO)
@@ -33,6 +33,7 @@ if len(sys.argv) > 1:
 
 if True:
     incorrectos = 0
+    totales = len(TESTS)
     for fich in TESTS:
         lexer = CoolLexer()
         # if "escapedeof.cool" != fich: continue
@@ -46,6 +47,7 @@ if True:
         texto = ''
         entrada = f.read()
         f.close()
+
         if PRACTICA == '01':
             texto = '\n'.join(lexer.salida(entrada))
             texto = f'#name "{fich}"\n' + texto
@@ -57,6 +59,7 @@ if True:
             texto = re.sub(r'#\d+\b','',texto)
             resultado = re.sub(r'#\d+\b','',resultado)
             if texto.strip().split() != resultado.strip().split():
+                incorrectos += 1
                 print(f"Incorrecto: {fich}")
                 if DEBUG:
                     nuestro = [linea for linea in texto.split('\n') if linea]
@@ -80,6 +83,8 @@ if True:
                     g.write(resultado.strip())
                     f.close()
                     g.close()
+
+        # TODO - Revisar porque no esta dando como bien las de la práctica 2
         elif PRACTICA in ('02', '03'):
             
             parser = CoolParser()
@@ -93,7 +98,7 @@ if True:
                     
                     # j.errores = errores_tipo
                     try:
-                        j.TIPO()
+                        if PRACTICA == '03': j.TIPO()
                         resultado = '\n'.join([c for c in j.str(0).split('\n')
                                             if c and '#' not in c])
                     except Exception as e:
@@ -142,4 +147,4 @@ if True:
                 print(f"Lanza excepción en {fich} : {e}")
                 print()
 
-    print(incorrectos)
+    print(f"{incorrectos}/{totales}")

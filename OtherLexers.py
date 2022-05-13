@@ -5,6 +5,7 @@ import Lexer as L
 '''
 Multiline comment lexer analyzer
 (* *)
+TODO - Revisar si se está aumentando el numero de linea
 '''
 class Comment_Ml(Lexer):
     tokens = {}
@@ -96,6 +97,7 @@ class Comment(Lexer):
 
 '''
 String lexer analyzer
+TODO - Revisar si se está aumentando el numero de linea
 '''
 class Stringg(Lexer):
     tokens = {}

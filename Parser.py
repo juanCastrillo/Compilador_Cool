@@ -116,7 +116,7 @@ class CoolParser(Parser):
 
     @_('CLASS TYPEID INHERITS TYPEID "{" "}"')
     def clas(self, p): 
-        return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero, linea=p.lineno)
+        return Clase(nombre=p[1], padre=p[3], caracteristicas=[], nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
 
     @_('feature ";"')

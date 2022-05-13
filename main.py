@@ -26,9 +26,13 @@ TESTS = [fich for fich in FICHEROS
          if os.path.isfile(os.path.join(DIR, fich)) and
          re.search(r"^[a-zA-Z].*\.(cool|test|cl)$",fich)]
 TESTS.sort()
-# TESTS = ['badargs1.test']#['cells.cl.test']
+if len(sys.argv) > 1:
+    fichs = sys.argv[1:]
+    TESTS = fichs
+# TESTS = ['cells.cl.test']
 
 if True:
+    incorrectos = 0
     for fich in TESTS:
         lexer = CoolLexer()
         # if "escapedeof.cool" != fich: continue
@@ -77,6 +81,7 @@ if True:
                     f.close()
                     g.close()
         elif PRACTICA in ('02', '03'):
+            
             parser = CoolParser()
             parser.nombre_fichero = fich
             parser.errores = []
@@ -109,6 +114,7 @@ if True:
                 if resultado.lower().strip().split() != bien.lower().strip().split():
                     if resultado.lower().strip().split()[-1] != bien.lower().strip().split()[-1]: # TODO - Quitar, es porque mis output de error no coinciden con los de out
                         print(f"Incorrecto: {fich}")
+                        incorrectos += 1
                         if DEBUG:
                             nuestro = [linea for linea in resultado.split('\n') if linea]
                             bien = [linea for linea in bien.split('\n') if linea]
@@ -136,3 +142,4 @@ if True:
                 print(f"Lanza excepción en {fich} : {e}")
                 print()
 
+    print(incorrectos)

@@ -125,13 +125,57 @@ class CoolLexer(Lexer):
     @_(r'\b[nN][uU][mM][bB][eE][rR]\b')
     def NUMBER(self, t): return t
 
+    '''
+    Special chars
+    '''
+    @_(r"\t", r" ", r"\f", r'\013', r'\n')
+    def SPECIALOPERATORS(self, t): 
+        pass
+
     """"""
+    @_(r'\\')
+    def STRANGESYMBOLS1(self, t): 
+        t.type = "ERROR"
+        t.value = f'"\\\\"'
+        return t
+
     # @_(r'_|\!|\#|\$|\%|\^|\&|>|?|\`|\[|\]|\\\|\|')
     @_(r'[_!#$%^&>?`[\]\\|]|\\\\')
-    def STRANGESYMBOLS(self, t): 
+    def STRANGESYMBOLS2(self, t): 
         t.type = "ERROR"
         t.value = f'"{t.value}"'
         return t
+
+    @_(r'\000',)
+    def STRANGESYMBOLS00(self, t): 
+        t.type = "ERROR"
+        t.value = r'"\000"'
+        return t
+
+    @_(r'\001',)
+    def STRANGESYMBOLS01(self, t): 
+        t.type = "ERROR"
+        t.value = r'"\001"'
+        return t
+
+    @_(r'\002',)
+    def STRANGESYMBOLS02(self, t): 
+        t.type = "ERROR"
+        t.value = r'"\002"'
+        return t
+
+    @_(r'\003',)
+    def STRANGESYMBOLS03(self, t): 
+        t.type = "ERROR"
+        t.value = r'"\003"'
+        return t
+
+    @_(r'\004',)
+    def STRANGESYMBOLS04(self, t): 
+        t.type = "ERROR"
+        t.value = r'"\004"'
+        return t
+
 
     """
     Simbolos

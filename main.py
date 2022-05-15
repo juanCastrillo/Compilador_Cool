@@ -16,7 +16,7 @@ from Lexer import *
 from Parser import *
 from Clases import *
 
-PRACTICA = "02" # Practica que hay que evaluar
+PRACTICA = "03" # Practica que hay que evaluar
 DEBUG = True   # Decir si se lanzan mensajes de debug
 NUMLINEAS = 3   # Numero de lineas que se muestran antes y después de la no coincidencia
 sys.path.append(DIRECTORIO)
@@ -110,7 +110,7 @@ if True:
                             traceback.print_exc()
                             print(str(e))
                         resultado = str(e)
-                        resultado += '\n' + "Compilation halted due to lex and parse errors"
+                        resultado += '\n' + "Compilation halted due to lex and parse errors."
                                         
                 else:
                     resultado = '\n'.join(parser.errores)

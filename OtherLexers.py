@@ -11,13 +11,14 @@ class Comment_Ml(Lexer):
     tokens = {}
     commentCount = 1
 
-    @_(r'[^"]$', r'[^"]\$', r'[^"]\\$', r'[^"]\\\$') # EOF
+    @_(r'[^*)]$') # EOF
     def EOFERROR4(self, t):
         print("ola4", t.value)
         t.type = "ERROR"
         t.value = '"EOF in comment"'
         self._word = '"'
         self.begin(L.CoolLexer)
+        return t
         
 
     @_(r'\(\*')
@@ -262,18 +263,21 @@ class Stringg(Lexer):
         self._nChars += 1
         self._word += t.value#[1:2]
 
+    @_(r'\\-')
+    def ONESSLASHCHARACT2(self, t):
+        self._nChars += 1
+        self._word += "-"
 
     @_(r'\\.') # \.
     def ONESLASHCHARACT(self, t):
-        # print(t.value)
         self._nChars += 1
         self._word += t.value
 
     @_(r'.')
     def CHARACT(self, t):
-        # print(t.value)
         self._nChars += 1
         self._word += t.value
+
 
 
     

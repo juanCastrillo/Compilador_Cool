@@ -16,7 +16,7 @@ from Lexer import *
 from Parser import *
 from Clases import *
 
-PRACTICA = "01" # Practica que hay que evaluar
+PRACTICA = "02" # Practica que hay que evaluar
 DEBUG = True   # Decir si se lanzan mensajes de debug
 NUMLINEAS = 3   # Numero de lineas que se muestran antes y después de la no coincidencia
 sys.path.append(DIRECTORIO)
@@ -96,7 +96,6 @@ if True:
             try:
                 if j and not parser.errores:
                     
-                    # j.errores = errores_tipo
                     try:
                         if PRACTICA == '03': j.TIPO()
                         resultado = '\n'.join([c for c in j.str(0).split('\n')
@@ -104,27 +103,36 @@ if True:
                     except Exception as e:
                         if isinstance(e, CodeError):
                             # print(f"Exception {fich}")
-                        # traceback.print_exc()
+                            # traceback.print_exc()
                             # print(str(e))
                             print()
                         else:
                             traceback.print_exc()
                             print(str(e))
                         resultado = str(e)
-                        resultado += '\n' + "Compilation halted due to lex and parse errors."
+                        resultado += '\n' + "Compilation halted due to lex and parse errors"
                                         
                 else:
                     resultado = '\n'.join(parser.errores)
-                    resultado += '\n' + "Compilation halted due to lex and parse errors."
-                if resultado.lower().strip().split() != bien.lower().strip().split():
-                    if resultado.lower().strip().split()[-1] != bien.lower().strip().split()[-1]: # TODO - Quitar, es porque mis output de error no coinciden con los de out
+                    resultado += '\n' + "Compilation halted due to lex and parse errors"
+    
+                our = resultado.lower().strip().split() # + ["."] if PRACTICA == "02" else []
+                og = bien.lower().strip().split()
+                if our != og:
+                    # print()
+                    # print(resultado)
+                    # print(bien)                
+                    if our[-1] != og[-1]: # TODO - Quitar, es porque mis output de error no coinciden con los de out
                         print(f"Incorrecto: {fich}")
                         incorrectos += 1
                         if DEBUG:
                             nuestro = [linea for linea in resultado.split('\n') if linea]
                             bien = [linea for linea in bien.split('\n') if linea]
+                            
                             linea = 0
                             while nuestro[linea:linea+NUMLINEAS] == bien[linea:linea+NUMLINEAS]:
+                                if linea > len(nuestro) or linea > len(bien):
+                                    break
                                 linea += 1
                             # print(colored('\n'.join(nuestro[linea:linea+NUMLINEAS]), 'white', 'on_red'))
                             # print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))

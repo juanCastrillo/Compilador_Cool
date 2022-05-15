@@ -283,6 +283,7 @@ class RamaCase(Nodo):
 class Switch(Nodo):
     expr: Expresion = None
     casos: List[RamaCase] = field(default_factory=list)
+    cast: str = "_no_type"
 
     def TIPO(self, ambito):
         # TODO - El tipo del switch varia en funcion de la rama que se tome al evaluar la expr

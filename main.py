@@ -16,7 +16,13 @@ from Lexer import *
 from Parser import *
 from Clases import *
 
+n = 1
 PRACTICA = "03" # Practica que hay que evaluar
+if len(sys.argv) > 1:
+    if sys.argv[1].isnumeric():
+        PRACTICA = "0"+sys.argv[1]
+        n += 1
+
 DEBUG = True   # Decir si se lanzan mensajes de debug
 NUMLINEAS = 3   # Numero de lineas que se muestran antes y después de la no coincidencia
 sys.path.append(DIRECTORIO)
@@ -26,10 +32,12 @@ TESTS = [fich for fich in FICHEROS
          if os.path.isfile(os.path.join(DIR, fich)) and
          re.search(r"^[a-zA-Z].*\.(cool|test|cl)$",fich)]
 TESTS.sort()
-if len(sys.argv) > 1:
-    fichs = sys.argv[1:]
+
+if len(sys.argv) > n:
+    fichs = sys.argv[n:]
     TESTS = fichs
-# TESTS = ['cells.cl.test']
+
+TESTS = ['staticdispatch.test']#['cells.cl.test']
 
 if True:
     incorrectos = 0
@@ -85,7 +93,7 @@ if True:
                     g.close()
 
         # TODO - Revisar porque no esta dando como bien las de la práctica 2
-        elif PRACTICA in ('02', '03'):
+        elif PRACTICA in ('02', '03', '04'):
             
             parser = CoolParser()
             parser.nombre_fichero = fich
@@ -97,7 +105,12 @@ if True:
                 if j and not parser.errores:
                     
                     try:
-                        if PRACTICA == '03': j.TIPO()
+                        if PRACTICA == '03': 
+                            j.TIPO()
+                        elif PRACTICA == '04':
+                            j.TIPO()
+                            j.VALOR()
+
                         resultado = '\n'.join([c for c in j.str(0).split('\n')
                                             if c and '#' not in c])
                     except Exception as e:

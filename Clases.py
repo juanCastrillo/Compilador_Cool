@@ -59,6 +59,10 @@ class Asignacion(Expresion):
             raise CodeError(f"Tipo de asignación no coincide con el designado para la variable: {t} != {sc}", self.linea)
             # cells <- (new CellularAutomaton).init("         X         ");
         self.cast = t
+        self.ambito = ambito # TODO - Poner en todas las clases
+
+    def VALOR(self, ambito):
+        self.cuerpo.valor
 
     def str(self, n):
         resultado = super().str(n)
@@ -76,11 +80,25 @@ class LlamadaMetodoEstatico(Expresion):
     nombre_metodo: str = '_no_set'
     argumentos: List[Expresion] = field(default_factory=list)
 
+    '''
+    Provides a way of accessing methods of parent classes that have been hidden by
+    redefinitions in child classes. 
+    Instead of using the class of the leftmost expression to determine the method, 
+    the method of the class explicitly specified is used. For example, 
+    e@B.f() invokes the method f in class B on the object that is the value of e. 
+    For this form of dispatch, 
+    the static type to the left of “@”must conform to the type specified to the right of “@”.
+
+    self.cuerpo @ self.clase . self.nombre_metodo ( self.argumentos )
+    '''
     def TIPO(self, ambito):
         # TODO - No entiendo la sintaxis del metodo estatico.
         
         # Copiado de LlamadaMetodo
         self.cuerpo.TIPO(ambito)
+        if self.cuerpo.cast != self.clase:
+            if not ambito.esPadre(self.clase, self.cuerpo.cast):
+                raise CodeError(f"El tipo de dispatch no coincide: {self.cuerpo.cast} != {self.clase}", self.linea)
         argsFirma = ambito.argumentos(self.clase, self.nombre_metodo)
         if not argsFirma:
             raise CodeError(f"Método no encontrado: {self.clase}, {self.nombre_metodo}", self.linea)
@@ -137,6 +155,10 @@ class LlamadaMetodo(Expresion):
                 tipo = claseOriginal
             return self.metodos[clase, metodo][:-1]+[tipo]
         '''
+
+    def VALOR(self, ambito):
+        # TODO - Llamar a método con cuerpo correcto (hay que guardarlo antes)
+        pass
 
     def str(self, n):
         resultado = super().str(n)
@@ -576,6 +598,10 @@ class Entero(Expresion):
         # Los atributos del padre
         self.cast = "Int" 
 
+    def VALOR(self, ambito):
+        # Ya tengo el valor
+        self.valor
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_int\n'
@@ -817,6 +843,12 @@ class Programa(IterableNodo):
             raise CodeError("Clase Main no definida")
         for clase in self.secuencia:
             clase.TIPO(ambito)
+        self.ambito = ambito
+
+    def VALOR(self):
+        ambito = self.ambito # Recupero el ambito calculado en el tipo
+        for clase in self.secuencia:
+            clase.VALOR(ambito)
 
     def str(self, n):
         resultado = super().str(n)
@@ -859,6 +891,13 @@ class Clase(Nodo):
             else: # Atributo
                 nuevoAmbito.addVar(caracteristica.nombre, caracteristica.tipo, self.nombre, linea=caracteristica.linea)
                 caracteristica.TIPO(nuevoAmbito)
+    
+    def VALOR(self, ambito):
+        for caracteristica in self.caracteristicas:
+            if isinstance(caracteristica, Metodo):
+                caracteristica.VALOR(ambito)
+            else: # Atributo
+                caracteristica.VALOR(ambito)
 
     def str(self, n):
         resultado = super().str(n)
@@ -931,6 +970,9 @@ class Atributo(Caracteristica):
                 raise CodeError(f"Tipo definido no es igual al del valor: {self.tipo} != {sc}", self.linea)
         
         self.cast = self.tipo
+
+    def VALOR(self, ambito: Ambito):
+        ambito.setVarValue(self.nombre, self.cuerpo.VALOR())
 
     def str(self, n):
         resultado = super().str(n)

@@ -93,8 +93,6 @@ class LlamadaMetodoEstatico(Expresion):
     '''
     def TIPO(self, ambito):
         # TODO - No entiendo la sintaxis del metodo estatico.
-        
-        # Copiado de LlamadaMetodo
         self.cuerpo.TIPO(ambito)
         if self.cuerpo.cast != self.clase:
             if not ambito.esPadre(self.clase, self.cuerpo.cast):
@@ -110,6 +108,15 @@ class LlamadaMetodoEstatico(Expresion):
             if arg.cast != argF:
                 raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argF}", self.linea)
         self.cast = tipo
+
+        '''
+        ("IO", "out_string"): ["String", "SELF_TYPE"],
+        ("IO", "out_int"): ["Int", "SELF_TYPE"],
+        '''
+        if self.nombre_metodo == "out_string": # TODO
+            print(ambito.getVar(self.argumentos.nombre))
+        elif self.nombre_metodo == "out_int":
+            print(ambito.getVar(self.argumentos.nombre))
 
     def str(self, n):
         resultado = super().str(n)
@@ -145,16 +152,17 @@ class LlamadaMetodo(Expresion):
             if arg.cast != argCorrecto and not ambito.esPadre(argCorrecto, arg.cast): # TODO - Tener en cuenta herencia
                 raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argCorrecto}", self.linea)
         self.cast = tipo
+        
         '''
-        def argumentos(self, clase, metodo):
-            claseOriginal = clase
-            while (clase, metodo) not in self.metodos: #
-                clase = self.padre(clase)
-            tipo = self.metodos[clase, metodo][-1]
-            if tipo == "SELF_TYPE":
-                tipo = claseOriginal
-            return self.metodos[clase, metodo][:-1]+[tipo]
+        ("IO", "out_string"): ["String", "SELF_TYPE"],
+        ("IO", "out_int"): ["Int", "SELF_TYPE"],
         '''
+        if self.nombre_metodo == "out_string": # TODO
+            print(ambito.getVar(self.argumentos[0].valor))
+        elif self.nombre_metodo == "out_int":
+            print(ambito.getVar(self.argumentos[0].valor))
+
+        # TODO - Faltan muchos métodos
 
     def VALOR(self, ambito):
         # TODO - Llamar a método con cuerpo correcto (hay que guardarlo antes)
@@ -583,6 +591,10 @@ class NoExpr(Expresion):
     def TIPO(self, ambito):
         self.cast = "_no_type"
 
+    def VALOR(self, ambito):
+        def valor(): return None
+        return None
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_no_expr\n'
@@ -599,8 +611,8 @@ class Entero(Expresion):
         self.cast = "Int" 
 
     def VALOR(self, ambito):
-        # Ya tengo el valor
-        self.valor
+        def valor(): return self.valor
+        return valor 
 
     def str(self, n):
         resultado = super().str(n)
@@ -617,6 +629,10 @@ class String(Expresion):
     def TIPO(self, ambito):
         # Los atributos del padre
         self.cast = "String"
+
+    def VALOR(self, ambito):
+        def valor(): return self.valor
+        return valor
 
     def str(self, n):
         resultado = super().str(n)
@@ -635,6 +651,9 @@ class Booleano(Expresion):
         # nuevoAmbito = deepcopy(ambito)
         self.cast = "Bool"
         
+    def VALOR(self, ambito):
+        def valor(): return self.valor
+        return valor
 
     def str(self, n):
         resultado = super().str(n)
@@ -704,7 +723,7 @@ class Ambito():
             ("IO", "in_int"): ["Int"],
         } #(clase, metodo): [argumentos, tipo_retorno]
         
-        self.variables = {} # argumento: tipo
+        self.variables = {} # argumento: tipo, valor
         self.variablesClase = defaultdict(lambda: set())
         self.metodosClase = defaultdict(lambda: [])
     
@@ -792,7 +811,7 @@ class Ambito():
         return foundMethod
 
 
-    def addVar(self, nombreVar, tipo, clase = None, linea = None):
+    def addVar(self, nombreVar, tipo, valor = None, clase = None, linea = None):
         # Palabra reservada
         if nombreVar in self.palabrasReservadas:
             raise CodeError(f"Nombre de variable no permitido: {nombreVar}", linea)
@@ -808,7 +827,17 @@ class Ambito():
                 raise CodeError(f"Variable ya definida {nombreVar}, {clase}", linea)
         
         # Correcto
-        self.variables[nombreVar] = tipo
+        # if valor = None:
+        self.variables[nombreVar] = (tipo, valor)
+        # else:
+        #     self.variables[nombreVar] = (tipo,)
+
+
+    def getVar(self, nombreVar):
+        if nombreVar in self.variables:
+            return self.variables[nombreVar]
+        else:
+            return None
 
     def tipoVar(self, nombreVar): 
         if nombreVar == "self": return self.claseActual
@@ -816,7 +845,7 @@ class Ambito():
         if nombreVar not in self.variables:
             return None
         
-        return self.variables[nombreVar]
+        return self.variables[nombreVar][0] # TODO - Cambiar addVar para incluir tipo
 
     def tipoPrimitivo(self, tipo):
         return tipo in self.tiposPrimitivos
@@ -970,6 +999,8 @@ class Atributo(Caracteristica):
                 raise CodeError(f"Tipo definido no es igual al del valor: {self.tipo} != {sc}", self.linea)
         
         self.cast = self.tipo
+
+        self.VALOR(ambito)
 
     def VALOR(self, ambito: Ambito):
         ambito.setVarValue(self.nombre, self.cuerpo.VALOR())

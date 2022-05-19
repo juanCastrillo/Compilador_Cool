@@ -17,7 +17,7 @@ from Parser import *
 from Clases import *
 
 n = 1
-PRACTICA = "03" # Practica que hay que evaluar
+PRACTICA = "04" # Practica que hay que evaluar
 if len(sys.argv) > 1:
     if sys.argv[1].isnumeric():
         PRACTICA = "0"+sys.argv[1]
@@ -37,7 +37,7 @@ if len(sys.argv) > n:
     fichs = sys.argv[n:]
     TESTS = fichs
 
-TESTS = ['staticdispatch.test']#['cells.cl.test']
+# TESTS = ['staticdispatch.test']#['cells.cl.test']
 
 if True:
     incorrectos = 0
@@ -105,7 +105,8 @@ if True:
                 if j and not parser.errores:
                     
                     try:
-                        if PRACTICA == '03': 
+                        # TODO - Cambiar los .out para que reflejen los errores como yo los he definido
+                        if PRACTICA == '03':
                             j.TIPO()
                         elif PRACTICA == '04':
                             j.TIPO()

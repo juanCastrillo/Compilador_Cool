@@ -17,7 +17,7 @@ from Parser import *
 from Clases import *
 
 n = 1
-PRACTICA = "04" # Practica que hay que evaluar
+PRACTICA = "03" # Practica que hay que evaluar
 if len(sys.argv) > 1:
     if sys.argv[1].isnumeric():
         PRACTICA = "0"+sys.argv[1]
@@ -106,20 +106,25 @@ if True:
                     
                     try:
                         # TODO - Cambiar los .out para que reflejen los errores como yo los he definido
-                        if PRACTICA == '03':
+                        if PRACTICA == '02':
+                            # j.TIPO()
+                            resultado = '\n'.join([c for c in j.str(0).split('\n')
+                                            if c and '#' not in c])
+                        elif PRACTICA == '03':
                             j.TIPO()
+                            resultado = '\n'.join([c for c in j.str(0).split('\n')
+                                            if c and '#' not in c])
                         elif PRACTICA == '04':
                             j.TIPO()
-                            j.VALOR()
-
-                        resultado = '\n'.join([c for c in j.str(0).split('\n')
-                                            if c and '#' not in c])
+                            # j.VALOR()
+    
                     except Exception as e:
                         if isinstance(e, CodeError):
-                            # print(f"Exception {fich}")
-                            # traceback.print_exc()
+                            if e.message != "Abortado" and PRACTICA == "04": 
+                                print(f"Exception {fich}")
+                                # traceback.print_exc()
                             # print(str(e))
-                            print()
+                                print()
                         else:
                             traceback.print_exc()
                             print(str(e))
@@ -158,15 +163,15 @@ if True:
                             g.close()
             except Exception as e:
                 print()
-                print("ERROR")
-                print("------")
+                # print("ERROR")
+                # print("------")
                 # print(e)
                 # traceback.print_exc()
                 # pass
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 # print(exc_type, fname, exc_tb.tb_lineno)
-                print(f"Lanza excepción en {fich} : {e}")
-                print()
+                # print(f"Lanza excepción en {fich} : {e}")
+                # print()
 
     print(f"{incorrectos}/{totales}")

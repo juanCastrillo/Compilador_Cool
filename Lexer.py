@@ -128,7 +128,7 @@ class CoolLexer(Lexer):
     '''
     Special chars
     '''
-    @_(r"\t", r" ", r"\f", r'\013', r'\n')
+    @_(r"\t", r" ", r"\f", r'\013', r'\n|\r')
     def SPECIALOPERATORS(self, t): 
         pass
 

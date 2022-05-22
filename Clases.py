@@ -17,6 +17,9 @@ class CodeError(Exception):
 class Nodo:
     linea: int = 0
 
+    def VALOR(self):
+        def valor(): return None
+
     def str(self, n):
         return f'{n*" "}#{self.linea}\n'
 
@@ -42,6 +45,10 @@ class Expresion(Nodo):
 
     def TIPO(self, ambito):
         pass
+
+    def VALOR(self):
+        def valor(): return None
+        return valor
 
 
 @dataclass
@@ -111,7 +118,8 @@ class LlamadaMetodoEstatico(Expresion):
  
         for arg, argF in zip(self.argumentos, args): # Compruebo que el tipo de los argumentos pasados sea el correcto
             arg.TIPO(ambito)
-            if arg.cast != argF:
+            # Ambito().esPadre()
+            if arg.cast != argF and not ambito.esPadre(padre = argF, clase = arg.cast):
                 raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argF}", self.linea)
         self.cast = tipo
 
@@ -133,7 +141,8 @@ class LlamadaMetodoEstatico(Expresion):
         resultado += f'{(n+2)*" "}(\n'
         resultado += ''.join([c.str(n+2) for c in self.argumentos])
         resultado += f'{(n+2)*" "})\n'
-        resultado += f'{(n)*" "}: _no_type\n'
+        # resultado += f'{(n)*" "}: _no_type\n'
+        resultado += f'{(n)*" "}: {self.cast}\n'
         return resultado
 
 
@@ -159,9 +168,9 @@ class LlamadaMetodo(Expresion):
                 raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argCorrecto}", self.linea)
         self.cast = tipo
         self.ambito = ambito
-        from main import PRACTICA
-        if PRACTICA == "04":
-            self.VALOR()
+        # from main import PRACTICA
+        # if PRACTICA == "04":
+        #     self.VALOR()
         # TODO - Faltan muchos métodos
 
     def VALOR(self):
@@ -195,7 +204,8 @@ class LlamadaMetodo(Expresion):
         elif self.nombre_metodo == "copy":
             # def valor(): return self.ambito.getVar(self.cuerpo.nombre)[1]
             # return valor # Calcular un metodo
-            return self.ambito.getVar(self.cuerpo.nombre)[1]
+            # return self.ambito.getVar(self.cuerpo.nombre)[1]
+            return self.cuerpo.VALOR()
 
     def str(self, n):
         resultado = super().str(n)
@@ -220,19 +230,22 @@ class Condicional(Expresion):
         if self.condicion.cast != "Bool":
             raise CodeError(f'Condicion del condicional debe ser Bool no "{self.condicion.cast}"', self.linea)
         
-        self.verdadero.TIPO(ambito)
-        self.falso.TIPO(ambito)
-        tv, tf = self.verdadero.cast, self.falso.cast
-        if self.condicion == "true":
-            self.cast = tv
-        elif self.condicion == "false":
-            self.cast = tf
-        elif tv != tf:
-            self.cast = [tv, tf] # TODO
-        else:
-            self.cast = self.verdadero.cast
+        # self.verdadero.TIPO(ambito)
+        # self.falso.TIPO(ambito)
+        # tv, tf = self.verdadero.cast, self.falso.cast
+        # if self.condicion == "true":
+        #     self.cast = tv
+        # elif self.condicion == "false":
+        #     self.cast = tf
+        # elif tv != tf:
+        self.cast = "Object" #[tv, tf] # TODO
+        # else:
+        #     self.cast = self.verdadero.cast
             # raise CodeError(f'Condicion de la rama falsa y verdadera deben coincid condicional debe ser Bool no "{self.condicion.cast}"', self.linea)
         self.ambito = ambito
+        from main import PRACTICA
+        if PRACTICA == "04":
+            self.VALOR()
 
     def VALOR(self): # TODO
         if self.condicion.VALOR()() == "True":
@@ -287,25 +300,23 @@ class Let(Expresion):
         #       let ...
         nuevoAmbito = deepcopy(ambito)
         self.ambito = nuevoAmbito
-        self.inicializacion.TIPO(nuevoAmbito)
+        # TODO - Comprobar si la asignacion es correcta
         nuevoAmbito.addVar(self.nombre,self.tipo)
+        
+        if self.inicializacion and not isinstance(self.inicializacion, NoExpr):
+            self.inicializacion.TIPO(nuevoAmbito)
+            if self.tipo != self.inicializacion.cast and not ambito.esPadre(self.tipo, self.inicializacion.cast):
+                raise CodeError(f"Tipo de asignacion en Let no coincide con el tipo especificado: {self.inicializacion.cast} != {self.tipo}")
+            from main import PRACTICA
+            if PRACTICA == "04":
+                self.VALOR()
+        
+        # Continuo con el cuerpo del let
+        self.cuerpo.TIPO(nuevoAmbito)
         from main import PRACTICA
         if PRACTICA == "04":
-            self.VALOR()
-        cuerpo = self.cuerpo
-        # if isinstance(cuerpo, Let):
-        cuerpo.TIPO(nuevoAmbito)
-            # nuevoAmbito.addVar(cuerpo.nombre, cuerpo.tipo)
-            # cuerpo.TIPO(nuevoAmbito)
-            # cuerpo.VALOR()
-            # cuerpo = cuerpo.cuerpo
-            
-            #nuevo.setValVar(cuerpo.nombre, cuerpo.inicializacion.VALOR())#VALOR()
-            
-        # cuerpo.TIPO(nuevoAmbito)
-        self.cast = cuerpo.cast
-        
-        # self.VALOR()
+            self.cuerpo.VALOR()
+        self.cast = self.cuerpo.cast
 
     def VALOR(self): # TODO 
         self.ambito.setValVar(self.nombre, self.inicializacion.VALOR())
@@ -331,6 +342,12 @@ class Bloque(Expresion):
             expresion.TIPO(nuevoAmbito)
         self.cast = self.expresiones[-1].cast 
 
+    def VALOR(self):
+        for e in self.expresiones:
+            # try:
+            e.VALOR()
+            # except Exception as ex: print(ex)
+
     def str(self, n):
         resultado = super().str(n)
         resultado = f'{n*" "}_block\n'
@@ -348,7 +365,12 @@ class RamaCase(Nodo):
     cast: str = '_no_type'
 
     def TIPO(self, ambito):
+        # Ambito().addVar()
+        # TODO - Cuerpo.TIPO
+        ambito.addVar(self.nombre_variable, self.tipo)
+        self.cuerpo.TIPO(ambito)
         self.cast = self.tipo
+        # pass
 
     def str(self, n):
         resultado = super().str(n)
@@ -356,7 +378,7 @@ class RamaCase(Nodo):
         resultado += f'{(n+2)*" "}{self.nombre_variable}\n'
         resultado += f'{(n+2)*" "}{self.tipo}\n'
         resultado += self.cuerpo.str(n+2)
-        resultado += f'{(n)*" "}: {self.cast}\n'
+        # resultado += f'{(n)*" "}: {self.cast}\n'
         return resultado
 
 
@@ -387,7 +409,8 @@ class Switch(Nodo):
             if tipo in tiposEncontrados:
                 raise CodeError(f"Tipo repetido en Case: {tipo}", self.linea)
             tiposEncontrados.add(tipo)
-            self.cast = tipo # TODO - Esto no es así, es la unión de los tipos
+            self.cast = tipo # TODO - Esto no es así, es la unión de los tipos (el padre de todos)
+        self.cast = "Object"
 
     def str(self, n):
         resultado = super().str(n)
@@ -561,6 +584,19 @@ class Igual(OperacionBinaria):
             if tizq != tdrch:
                 raise CodeError(f"No se pueden comparar tipos {self.izquierda.cast} y {self.derecha.cast}", self.linea)
         self.cast = "Bool"
+        self.ambito = ambito
+
+    def VALOR(self):
+        tizq, tdrch = self.izquierda.VALOR(), self.derecha.VALOR()
+        def valorV(): return "True"
+        def valorF(): return "False"
+        if tizq() != tdrch():
+            return valorF
+        return valorV
+            # raise CodeError(f"No se pueden comparar tipos {self.izquierda.cast} y {self.derecha.cast}", self.linea)
+        if self.izquierda == self.derecha:
+            return "True"
+        else: return "False"
 
     def str(self, n):
         resultado = super().str(n)
@@ -637,7 +673,12 @@ class Objeto(Expresion):
         self.ambito = ambito
 
     def VALOR(self):
-        return self.ambito.getVar(self.nombre)[1]
+        tipo, valor = self.ambito.getVar(self.nombre)
+        # if not valor:
+        #     v = self.ambito.defaultVal(tipo)
+        #     def valor(): return v
+        # else:
+        return valor
         # raise CodeError("Valor de Objeto")
 
     def str(self, n):
@@ -751,6 +792,10 @@ class Ambito():
         self.herencia['IO']
 
         self.tiposPrimitivos = set(['Int', 'String', 'Bool', 'Object']) #'IO']) # TODO
+        self.defaultValues = defaultdict(lambda:None)
+        self.defaultValues['Int'] = 0
+        self.defaultValues['String'] = '""'
+        self.defaultValues['Bool'] = False
 
         '''
         Tipos Primitivos
@@ -805,13 +850,31 @@ class Ambito():
     '''
     Crea estructura de variables para las clases que no son la actual por si
     hay que realizar herencia.
-    var: (nombre, tipo)
+        var: (nombre, tipo)
     '''
     def addVarHerencia(self, var, clase):
         self.variablesClase[clase].add(var)
 
     '''
+    Determina si un nombre de variable existe para una clase padre de la actual.
+        nombreVar: Nombre de variable a analizar
+
+    returns {False: no existe, True: Si existe}
+    '''
+    def varHerencia(self, nombreVar):
+        clase = self.claseActual
+        while clase != "Object":
+        #    if nombreVar in self.variablesClase[self.padre(clase)]:
+            if any(nombreVar == v for v, t in list(self.variablesClase[self.padre(clase)])):
+               return True
+            clase = self.padre(clase)
+        
+        return False
+
+    '''
     Comprueba si una clase hereda de otra
+        padre: Clase super
+        clase: clase a analizar
     '''
     def esPadre(self, padre, clase):
         claseOriginal = clase
@@ -822,10 +885,14 @@ class Ambito():
             clase = cp
         return True
 
+    '''
+    Devuelve el padre inmediato de una clase dada
+        clase: Clase de la que conseguir el padre
+    '''
     def padre(self, clase): 
         try:
             return self.herencia[clase]
-        except: pass # TODO - Por si pasan una lista de clases
+        except: pass # TODO - Si pasan una lista de clases no hay comportamiento definido
 
     # TODO - También habría que copiar métodos del padre
     def mudarVariablesPadre(self, padre): 
@@ -875,6 +942,16 @@ class Ambito():
         return foundMethod
 
 
+    '''
+    Añade una variable dada a la lista de variables
+        nombreVar: Nombre de la variable
+        tipo: tipo de la variable
+        valor: valor de la variable, si no se pasa se deja en None para actualizar despues
+        
+        # Si se desea comprobar si se deberia añadir se deben pasar estos 2 argumentos
+            clase: Clase de la que proviene para comprobar si ya existe en algun padre
+            linea: para facilitar crear el error
+    '''
     def addVar(self, nombreVar, tipo, valor = None, clase = None, linea = None):
         # Palabra reservada
         if nombreVar in self.palabrasReservadas:
@@ -891,8 +968,10 @@ class Ambito():
                 raise CodeError(f"Variable ya definida {nombreVar}, {clase}", linea)
         
         # Correcto
-        # if valor = None:
-        self.variables[nombreVar] = (tipo, valor)
+        if valor == None:
+            v = self.defaultValues[tipo]
+            def valorF(): return v
+            self.variables[nombreVar] = (tipo, valorF)
         # else:
         #     self.variables[nombreVar] = (tipo,)
 
@@ -943,11 +1022,6 @@ class Programa(IterableNodo):
         for clase in self.secuencia:
             clase.TIPO(ambito)
         self.ambito = ambito
-
-    # def VALOR(self):
-    #     ambito = self.ambito # Recupero el ambito calculado en el tipo
-    #     for clase in self.secuencia:
-    #         clase.VALOR()
 
     def str(self, n):
         resultado = super().str(n)
@@ -1039,14 +1113,14 @@ class Metodo(Caracteristica):
         
         self.cuerpo.TIPO(nuevoAmbito)
         tipo = self.tipo
-        if self.tipo == "SELF_TYPE":
+        if self.tipo == "SELF_TYPE": # TODO - No cambiar el tipo o arreglar o no se que
             tipo = ambito.claseActual
         if not ambito.existeClase(tipo):
             raise CodeError(f'El tipo definido en el método {self.nombre} no existe "{self.tipo}"', self.linea)
         if self.cuerpo.cast != tipo and not ambito.esPadre(tipo, self.cuerpo.cast):
             raise CodeError(f"El tipo de retorno del método {self.nombre} no coincide: {self.cuerpo.cast} != {self.tipo}", self.linea)
 
-        self.cast = tipo #self.formales[-1].cast
+        self.cast = self.tipo #self.formales[-1].cast
 
     def str(self, n):
         resultado = super().str(n)
@@ -1062,16 +1136,19 @@ class Metodo(Caracteristica):
 class Atributo(Caracteristica):
 
     def TIPO(self, ambito: Ambito):
-        self.cuerpo.TIPO(ambito)
-        sc = self.cuerpo.cast
-        if sc != "_no_type":
-            # si el tipo no es igual al del cuerpo 
-            # o
-            # el tipo no es padre del cuerpo
+        
+        if self.cuerpo and not isinstance(self.cuerpo, NoExpr): # Cuando se ha definido un valor para asignarlo al atributo
+            self.cuerpo.TIPO(ambito)
+            sc = self.cuerpo.cast
             if self.tipo != sc and not ambito.esPadre(self.tipo, sc):
                 raise CodeError(f"Tipo definido no es igual al del valor: {self.tipo} != {sc}", self.linea)
+           
+        if ambito.varHerencia(self.nombre):
+            raise CodeError(f"No se puede sobreescribir una variable definida en el padre", self.linea)
         
+        ambito.addVar(self.nombre, self.tipo)
         self.cast = self.tipo
+        
         self.ambito = ambito
         from main import PRACTICA
         if PRACTICA == "04":

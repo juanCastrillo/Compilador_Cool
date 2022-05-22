@@ -11,34 +11,21 @@ class Comment_Ml(Lexer):
     tokens = {}
     commentCount = 1
 
+    '''
+    When EOF is reached inside the comment
+    '''
     @_(r'[^*)]$') # EOF
-    def EOFERROR4(self, t):
-        print("ola4", t.value)
+    def BADEND(self, t):
         t.type = "ERROR"
         t.value = '"EOF in comment"'
         self._word = '"'
         self.begin(L.CoolLexer)
         return t
         
-
-    @_(r'\(\*')
-    def ANOTHERONE(self, t):
-        self.commentCount += 1
-
-    @_(r'\\*\)')
-    def ESCAPED(self, t):
-        pass
-
-    @_(r'^(\*\))\Z', r'^(\*\))\\Z', r'^(\*\))\\\Z', r'^(\*\))\\\\Z')
-    def BADEND(self, t):
-        t.type = "ERROR"
-        t.value = '"EOF in comment"'
-        # self.commentCount -= 1
-        # if self.commentCount < 1:
-        #     self.commentCount = 1
-        self.begin(L.CoolLexer)
-        return t
-
+    '''
+    If a comment is closed and EOF is reached 
+    but theres still comment nesting to close.
+    '''
     @_(r'\*\)$')
     def BADEND2(self, t):
         self.commentCount -= 1
@@ -51,6 +38,16 @@ class Comment_Ml(Lexer):
             t.value = '"EOF in comment"'
             return t
 
+    '''
+    Starts a new comment, nesting it
+    '''
+    @_(r'\(\*')
+    def ANOTHERONE(self, t):
+        self.commentCount += 1
+
+    '''
+    Closes the current comment
+    '''
     @_(r'\*\)')
     def STR_CONST(self, t):
         self.commentCount -= 1
@@ -58,7 +55,17 @@ class Comment_Ml(Lexer):
             self.commentCount = 1
             self.begin(L.CoolLexer)
 
-    @_(r'.|\n')
+    '''
+    Increases the line count
+    '''
+    @_(r'\n')
+    def NEXTLINE(self, t):
+        self.lineno += 1
+
+    '''
+    Ignore everything not closing the comment
+    '''
+    @_(r'.')
     def CONTENT(self, t):
         pass # self._word += t.value
 
@@ -74,12 +81,9 @@ class Comment(Lexer):
     tokens = {}
     _word = ""
 
-    # @_(r'\\n')
-    # def STR_CONST(self, t):
-    #     t.value = self._word
-    #     self._word = ""
-    #     self.begin(L.CoolLexer)
-
+    '''
+    End of the single line comment
+    '''
     @_(r'\n')
     def STR_CONST(self, t):
         t.value = self._word
@@ -112,7 +116,7 @@ class Stringg(Lexer):
         self._word += '"'
         
         if self._nChars > 1024: 
-            print(len(self._word))
+            # print(len(self._word))
             t.type = "ERROR"
             t.value = '"String constant too long"'
         else:
@@ -136,12 +140,12 @@ class Stringg(Lexer):
         \n newline 
         \f formfeed
     """
-    @_(r'\\b')
+    @_(r'\\x08|\\\x08|\\b') # TODO breaks everything
     def BACKSPACE(self, t):
         self._nChars += 1
         self._word += r"\b"
 
-    @_(r'\\t|\t', r'\\\t')
+    @_(r'\\t|\t', r'\\\t') # \\\t quiza haya que hacer solo la \ y hacer match de \\t?
     def TAB(self, t):
         self._nChars += 1
         self._word += r"\t" # r"\\"+t.value
@@ -149,6 +153,7 @@ class Stringg(Lexer):
     @_(r'\\\n|\\n') # Escapar un \n es añadir un literal \n
     def NEWLINE1(self, t):
         self._nChars += 1
+        self.lineno += 1 # TODO - Revisar que el salto de linea correcto es este y no uno escapado
         self._word += r"\n"
         # self.error(t)
 

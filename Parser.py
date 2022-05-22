@@ -35,8 +35,8 @@ class CoolParser(Parser):
         # ('right', 'UMINUS'), # UMINUS: - (cuando esta delante de una expresion, negativa)
         ('right', 'ASSIGN'),
         ('left', 'NOT'),
-        ('left', 'LE', '<', '='),
-        ('left', '+', '-'), 
+        ('right', 'LE', '<', '='),
+        ('left', '+', '-'), # Left
         ('left', '*', '/'), # Los simbolos al mismo nivel tienen igual prioridad
         ('left', 'ISVOID'),
         ('left', '~'),
@@ -310,9 +310,19 @@ class CoolParser(Parser):
     def expr(self, p):
         return Menor(izquierda=p[0], derecha=p[2], linea=p.lineno)
 
+    @_('expr LE expr LE expr')
+    def expr(self, p):
+        self.errores.append(f'"{self.nombre_fichero}", line {p.lineno}: syntax error at or near LE')
+        # self.error(p)
+
     @_('expr LE expr')
     def expr(self, p):
         return LeIgual(izquierda=p[0], derecha=p[2], linea=p.lineno)
+
+    @_('expr "=" expr "=" expr')
+    def expr(self, p):
+        self.errores.append(f'"{self.nombre_fichero}", line {p.lineno}: syntax error at or near \'=\'')
+        # self.error(p)
 
     @_('expr "=" expr')
     def expr(self, p):
@@ -346,6 +356,8 @@ class CoolParser(Parser):
     '''
     ERRORS
     '''
+
+   
 
     @_('error ";"')
     def expresion_list(self, p):

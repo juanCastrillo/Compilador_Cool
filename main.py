@@ -17,7 +17,7 @@ from Parser import *
 from Clases import *
 
 n = 1
-PRACTICA = "03" # Practica que hay que evaluar
+PRACTICA = "04" # Practica que hay que evaluar
 if len(sys.argv) > 1:
     if sys.argv[1].isnumeric():
         PRACTICA = "0"+sys.argv[1]
@@ -37,9 +37,8 @@ if len(sys.argv) > n:
     fichs = sys.argv[n:]
     TESTS = fichs
 
-# TESTS = ['staticdispatch.test']#['cells.cl.test']
-
-if True:
+# TESTS = ["basicequality.cl"]#['cells.cl.test']
+if __name__ == "__main__":
     incorrectos = 0
     totales = len(TESTS)
     for fich in TESTS:
@@ -100,20 +99,22 @@ if True:
             parser.errores = []
             bien = ''.join([c for c in g.readlines() if c and '#' not in c])
             g.close()
-            j = parser.parse(lexer.tokenize(entrada))
+            l = lexer.tokenize(entrada)
+            j = parser.parse(l)
             try:
                 if j and not parser.errores:
                     
                     try:
                         # TODO - Cambiar los .out para que reflejen los errores como yo los he definido
-                        if PRACTICA == '02':
-                            # j.TIPO()
+                        if PRACTICA == '02':                    
                             resultado = '\n'.join([c for c in j.str(0).split('\n')
                                             if c and '#' not in c])
+
                         elif PRACTICA == '03':
                             j.TIPO()
                             resultado = '\n'.join([c for c in j.str(0).split('\n')
                                             if c and '#' not in c])
+
                         elif PRACTICA == '04':
                             j.TIPO()
                             # j.VALOR()
@@ -141,26 +142,33 @@ if True:
                     # print()
                     # print(resultado)
                     # print(bien)                
-                    if our[-1] != og[-1]: # TODO - Quitar, es porque mis output de error no coinciden con los de out
-                        print(f"Incorrecto: {fich}")
-                        incorrectos += 1
-                        if DEBUG:
-                            nuestro = [linea for linea in resultado.split('\n') if linea]
-                            bien = [linea for linea in bien.split('\n') if linea]
-                            
-                            linea = 0
-                            while nuestro[linea:linea+NUMLINEAS] == bien[linea:linea+NUMLINEAS]:
-                                if linea > len(nuestro) or linea > len(bien):
-                                    break
-                                linea += 1
-                            # print(colored('\n'.join(nuestro[linea:linea+NUMLINEAS]), 'white', 'on_red'))
-                            # print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))
-                            f = open(os.path.join(DIR, fich)+'.nuestro', 'w')
-                            g = open(os.path.join(DIR, fich)+'.bien', 'w')
-                            f.write("\n".join(nuestro).strip())
-                            g.write("\n".join(bien).strip())
-                            f.close()
-                            g.close()
+                    # if our[-1] != og[-1]: # TODO - Quitar, es porque mis output de error no coinciden con los de out
+                    print(f"Incorrecto: {fich}")
+                    incorrectos += 1
+                    if DEBUG:
+                        nuestro = [linea for linea in resultado.split('\n') if linea]
+                        bien = [linea for linea in bien.split('\n') if linea]
+                        
+                        linea = 0
+                        while nuestro[linea:linea+NUMLINEAS] == bien[linea:linea+NUMLINEAS]:
+                            if linea > len(nuestro) or linea > len(bien):
+                                break
+                            linea += 1
+                        # print(colored('\n'.join(nuestro[linea:linea+NUMLINEAS]), 'white', 'on_red'))
+                        # print(colored('\n'.join(bien[linea:linea+NUMLINEAS]), 'blue', 'on_green'))
+                        f = open(os.path.join(DIR, fich)+'.nuestro', 'w')
+                        g = open(os.path.join(DIR, fich)+'.bien', 'w')
+                        f.write("\n".join(nuestro).strip())
+                        g.write("\n".join(bien).strip())
+                        f.close()
+                        g.close()
+                    # else: # TODO - Remove
+                    #     print(fich)
+                    #     print(resultado)
+                    #     print(bien)
+                    #     print()
+                    #     print()
+                    #     print()
             except Exception as e:
                 print()
                 # print("ERROR")
@@ -174,4 +182,4 @@ if True:
                 # print(f"Lanza excepción en {fich} : {e}")
                 # print()
 
-    print(f"{incorrectos}/{totales}")
+    print(f"{incorrectos}/{totales} errors")

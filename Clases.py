@@ -164,7 +164,7 @@ class LlamadaMetodo(Expresion):
 
         for arg, argCorrecto in zip(self.argumentos, argsCorrectos): # Compruebo que el tipo de los argumentos pasados sea el correcto
             arg.TIPO(ambito)
-            if arg.cast != argCorrecto and not ambito.esPadre(argCorrecto, arg.cast): # TODO - Tener en cuenta herencia
+            if arg.cast != argCorrecto and not ambito.esPadre(argCorrecto, arg.cast) and arg: # TODO - Tener en cuenta herencia
                 raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argCorrecto}", self.linea)
         self.cast = tipo
         self.ambito = ambito
@@ -230,17 +230,18 @@ class Condicional(Expresion):
         if self.condicion.cast != "Bool":
             raise CodeError(f'Condicion del condicional debe ser Bool no "{self.condicion.cast}"', self.linea)
         
-        # self.verdadero.TIPO(ambito)
-        # self.falso.TIPO(ambito)
-        # tv, tf = self.verdadero.cast, self.falso.cast
-        # if self.condicion == "true":
-        #     self.cast = tv
-        # elif self.condicion == "false":
-        #     self.cast = tf
-        # elif tv != tf:
-        self.cast = "Object" #[tv, tf] # TODO
-        # else:
-        #     self.cast = self.verdadero.cast
+        # TODO - No calculo los tipos para que no se rompa (llamar a abort (en llamadaMetodo.TIPO esta el .VALOR))
+        self.verdadero.TIPO(ambito)
+        self.falso.TIPO(ambito)
+        tv, tf = self.verdadero.cast, self.falso.cast
+        if self.condicion == "true":
+            self.cast = tv
+        elif self.condicion == "false":
+            self.cast = tf
+        elif tv != tf:
+            self.cast = "Object" #[tv, tf] # TODO
+        else:
+            self.cast = tv
             # raise CodeError(f'Condicion de la rama falsa y verdadera deben coincid condicional debe ser Bool no "{self.condicion.cast}"', self.linea)
         self.ambito = ambito
         from main import PRACTICA
@@ -392,6 +393,7 @@ class Switch(Nodo):
         # TODO - El tipo del switch varia en funcion de la rama que se tome al evaluar la expr
         nuevoAmbito = deepcopy(ambito)
         self.expr.TIPO(nuevoAmbito)
+        tipoEsperado = self.expr.cast
         # TODO - Si el tipo de expr es void lanzo excepcion
         '''
         TODO
@@ -400,6 +402,7 @@ class Switch(Nodo):
         The variables declared on each branch of a case must all have distinct types.
         TODO - Como junto los tipos?
         '''
+        tipo = "Object"
         tipos = []
         tiposEncontrados = set()
         for caso in self.casos:
@@ -410,7 +413,13 @@ class Switch(Nodo):
                 raise CodeError(f"Tipo repetido en Case: {tipo}", self.linea)
             tiposEncontrados.add(tipo)
             self.cast = tipo # TODO - Esto no es así, es la unión de los tipos (el padre de todos)
-        self.cast = "Object"
+        
+        for tipoE in tiposEncontrados:
+            if tipoE == tipoEsperado or nuevoAmbito.esPadre(tipoEsperado, tipoE):
+                tipo = tipoE
+                # break
+
+        self.cast = tipo
 
     def str(self, n):
         resultado = super().str(n)

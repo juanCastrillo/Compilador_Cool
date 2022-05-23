@@ -140,7 +140,6 @@ if __name__ == "__main__":
                     # print()
                     # print(resultado)
                     # print(bien)                
-                    # if our[-1] != og[-1]: # TODO - Quitar, es porque mis output de error no coinciden con los de out
                     print(f"Incorrecto: {fich}")
                     incorrectos += 1
                     if DEBUG:
@@ -160,13 +159,7 @@ if __name__ == "__main__":
                         g.write("\n".join(bien).strip())
                         f.close()
                         g.close()
-                    # else: # TODO - Remove
-                    #     print(fich)
-                    #     print(resultado)
-                    #     print(bien)
-                    #     print()
-                    #     print()
-                    #     print()
+                    
             except Exception as e:
                 print()
                 # print("ERROR")

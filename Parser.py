@@ -233,9 +233,6 @@ class CoolParser(Parser):
     @_('expresion_list expr ";"')
     def expresion_list(self, p):
         return p[0] + [p[1]]
-    #    
-
-    # TODO - Añadir valores a los opcionales (NoExpr())
     
     # let ID:TYPE [ <- expr ] [,ID:TYPE [ <- expr ]]* in expr
     @_('LET assign_list IN expr') #OBJECTID:TYPEID ,"OBJECTID":"TYPEID "[" ASSIGN expr "]""]""*" IN expr')

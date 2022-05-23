@@ -91,7 +91,6 @@ if __name__ == "__main__":
                     f.close()
                     g.close()
 
-        # TODO - Revisar porque no esta dando como bien las de la práctica 2
         elif PRACTICA in ('02', '03', '04'):
             
             parser = CoolParser()
@@ -105,7 +104,6 @@ if __name__ == "__main__":
                 if j and not parser.errores:
                     
                     try:
-                        # TODO - Cambiar los .out para que reflejen los errores como yo los he definido
                         if PRACTICA == '02':                    
                             resultado = '\n'.join([c for c in j.str(0).split('\n')
                                             if c and '#' not in c])

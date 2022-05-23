@@ -5,7 +5,6 @@ import Lexer as L
 '''
 Multiline comment lexer analyzer
 (* *)
-TODO - Revisar si se está aumentando el numero de linea
 '''
 class Comment_Ml(Lexer):
     tokens = {}
@@ -102,7 +101,6 @@ class Comment(Lexer):
 
 '''
 String lexer analyzer
-TODO - Revisar si se está aumentando el numero de linea
 '''
 class Stringg(Lexer):
     tokens = {}
@@ -140,7 +138,7 @@ class Stringg(Lexer):
         \n newline 
         \f formfeed
     """
-    @_(r'\\x08|\\\x08|\\b') # TODO breaks everything
+    @_(r'\\x08|\\\x08|\\b')
     def BACKSPACE(self, t):
         self._nChars += 1
         self._word += r"\b"
@@ -178,7 +176,7 @@ class Stringg(Lexer):
         self._nChars += 1
         self._word += r"\015"
 
-    @_(r'\033|\\033') # TODO - Ha roto unos cuantos
+    @_(r'\033|\\033')
     def ESCAPE1(self, t):
         self._nChars += 1
         self._word += r"\033"

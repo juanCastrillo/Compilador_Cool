@@ -17,7 +17,7 @@ from Parser import *
 from Clases import *
 
 n = 1
-PRACTICA = "04" # Practica que hay que evaluar
+PRACTICA = "03" # Practica que hay que evaluar
 if len(sys.argv) > 1:
     if sys.argv[1].isnumeric():
         PRACTICA = "0"+sys.argv[1]

@@ -107,20 +107,25 @@ class LlamadaMetodoEstatico(Expresion):
     def TIPO(self, ambito):
         # TODO - No entiendo la sintaxis del metodo estatico.
         self.cuerpo.TIPO(ambito)
-        if self.cuerpo.cast != self.clase:
-            if not ambito.esPadre(self.clase, self.cuerpo.cast):
-                raise CodeError(f"El tipo de dispatch no coincide: {self.cuerpo.cast} != {self.clase}", self.linea)
+        tipoCuerpo = self.cuerpo.cast
+        if tipoCuerpo == "SELF_TYPE":
+            tipoCuerpo = ambito.claseActual
+        if tipoCuerpo != self.clase:
+            if not ambito.esPadre(self.clase, tipoCuerpo):
+                raise CodeError(f"El tipo de dispatch no coincide: {tipoCuerpo} != {self.clase}", self.linea)
         argsFirma = ambito.argumentos(self.clase, self.nombre_metodo)
         if not argsFirma:
             raise CodeError(f"Método no encontrado: {self.clase}, {self.nombre_metodo}", self.linea)
         tipo = argsFirma[-1]
         args = argsFirma[:-1]
  
-        for arg, argF in zip(self.argumentos, args): # Compruebo que el tipo de los argumentos pasados sea el correcto
+        for arg, tipoEsperado in zip(self.argumentos, args): # Compruebo que el tipo de los argumentos pasados sea el correcto
             arg.TIPO(ambito)
+            tipoEncontrado = arg.cast
             # Ambito().esPadre()
-            if arg.cast != argF and not ambito.esPadre(padre = argF, clase = arg.cast):
-                raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argF}", self.linea)
+            if tipoEncontrado == "SELF_TYPE": tipoEncontrado = ambito.claseActual
+            if tipoEncontrado != tipoEsperado and not ambito.esPadre(padre = tipoEsperado, clase = tipoEncontrado):
+                raise CodeError(f"El tipo del argumento no coincide con el esperado: {tipoEncontrado} != {tipoEsperado}", self.linea)
         self.cast = tipo
 
         '''
@@ -154,7 +159,10 @@ class LlamadaMetodo(Expresion):
 
     def TIPO(self, ambito):
         self.cuerpo.TIPO(ambito)
-        argsFirma = ambito.argumentos(self.cuerpo.cast, self.nombre_metodo)
+        tipoCuerpo = self.cuerpo.cast
+        if tipoCuerpo == "SELF_TYPE":
+            tipoCuerpo = ambito.claseActual
+        argsFirma = ambito.argumentos(tipoCuerpo, self.nombre_metodo)
         # TODO - Ver si el metodo existe antes de llamarlo
         if not argsFirma:
             raise CodeError(f"Método estatico no encontrado: {self.nombre_metodo}", self.linea)
@@ -164,8 +172,11 @@ class LlamadaMetodo(Expresion):
 
         for arg, argCorrecto in zip(self.argumentos, argsCorrectos): # Compruebo que el tipo de los argumentos pasados sea el correcto
             arg.TIPO(ambito)
-            if arg.cast != argCorrecto and not ambito.esPadre(argCorrecto, arg.cast) and arg: # TODO - Tener en cuenta herencia
-                raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argCorrecto}", self.linea)
+            tipoEncontrado = arg.cast
+            # Ambito().esPadre()
+            if tipoEncontrado == "SELF_TYPE": tipoEncontrado = ambito.claseActual
+            if tipoEncontrado != argCorrecto and not ambito.esPadre(argCorrecto, tipoEncontrado) and arg: # TODO - Tener en cuenta herencia
+                raise CodeError(f"El tipo del argumento no coincide con el esperado: {tipoEncontrado} != {argCorrecto}", self.linea)
         
         if tipo == "SELF_TYPE":
             if self.cuerpo.cast != ambito.claseActual:
@@ -1021,8 +1032,8 @@ class Ambito():
             return None
 
     def tipoVar(self, nombreVar): 
-        if nombreVar == "self": return self.claseActual
-
+        if nombreVar == "self": return "SELF_TYPE"#self.claseActual
+        
         if nombreVar not in self.variables:
             return None
         
@@ -1139,12 +1150,16 @@ class Metodo(Caracteristica):
         
         self.cuerpo.TIPO(nuevoAmbito)
         tipo = self.tipo
+        
         if self.tipo == "SELF_TYPE": # TODO - No cambiar el tipo o arreglar o no se que
             tipo = ambito.claseActual
-        if not ambito.existeClase(tipo):
-            raise CodeError(f'El tipo definido en el método {self.nombre} no existe "{self.tipo}"', self.linea)
-        if self.cuerpo.cast != tipo and not ambito.esPadre(tipo, self.cuerpo.cast):
-            raise CodeError(f"El tipo de retorno del método {self.nombre} no coincide: {self.cuerpo.cast} != {self.tipo}", self.linea)
+        cuerpoTipo = self.cuerpo.cast
+        if cuerpoTipo == "SELF_TYPE":
+            cuerpoTipo = ambito.claseActual
+        if not ambito.existeClase(tipo) and self.tipo != "SELF_TYPE":
+            raise CodeError(f'El tipo definido en el método {self.nombre} no existe "{tipo}"', self.linea)
+        if cuerpoTipo != tipo and not ambito.esPadre(tipo, cuerpoTipo):
+            raise CodeError(f"El tipo de retorno del método {self.nombre} no coincide: {cuerpoTipo} != {tipo}", self.linea)
 
         self.cast = self.tipo #self.formales[-1].cast
 
@@ -1166,6 +1181,8 @@ class Atributo(Caracteristica):
         if self.cuerpo and not isinstance(self.cuerpo, NoExpr): # Cuando se ha definido un valor para asignarlo al atributo
             self.cuerpo.TIPO(ambito)
             sc = self.cuerpo.cast
+            if sc == "SELF_TYPE":
+                sc = ambito.claseActual
             if self.tipo != sc and not ambito.esPadre(self.tipo, sc):
                 raise CodeError(f"Tipo definido no es igual al del valor: {self.tipo} != {sc}", self.linea)
            

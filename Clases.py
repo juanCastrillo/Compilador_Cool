@@ -166,6 +166,15 @@ class LlamadaMetodo(Expresion):
             arg.TIPO(ambito)
             if arg.cast != argCorrecto and not ambito.esPadre(argCorrecto, arg.cast) and arg: # TODO - Tener en cuenta herencia
                 raise CodeError(f"El tipo del argumento no coincide con el esperado: {arg.cast} != {argCorrecto}", self.linea)
+        
+        if tipo == "SELF_TYPE":
+            if self.cuerpo.cast != ambito.claseActual:
+                tipo = self.cuerpo.cast
+                # self.tp = self.cuerpo.cast
+            else:
+                # self.tp = "SELF_TYPE"
+                tipo = ambito.claseActual
+        else: self.tp = tipo
         self.cast = tipo
         self.ambito = ambito
         # from main import PRACTICA
@@ -208,6 +217,8 @@ class LlamadaMetodo(Expresion):
             return self.cuerpo.VALOR()
 
     def str(self, n):
+        # c = self.cast if self.cast != self.ambito.claseActual else "SELF_TYPE"
+        # c = self.tp
         resultado = super().str(n)
         resultado += f'{(n)*" "}_dispatch\n'
         resultado += self.cuerpo.str(n+2)
@@ -274,7 +285,8 @@ class Bucle(Expresion):
         if self.condicion.cast != "Bool":
             raise CodeError("Condición del bucle while no es un Bool.", self.linea)
         self.cuerpo.TIPO(ambito)
-        self.cast = self.cuerpo.cast
+        # self.cast = self.cuerpo.cast
+        self.cast = "Object"
 
     def str(self, n):
         resultado = super().str(n)
@@ -342,6 +354,7 @@ class Bloque(Expresion):
         for expresion in self.expresiones:
             expresion.TIPO(nuevoAmbito)
         self.cast = self.expresiones[-1].cast 
+        self.c = "SELF_TYPE" if self.cast == ambito.claseActual else self.cast
 
     def VALOR(self):
         for e in self.expresiones:
@@ -350,6 +363,7 @@ class Bloque(Expresion):
             # except Exception as ex: print(ex)
 
     def str(self, n):
+
         resultado = super().str(n)
         resultado = f'{n*" "}_block\n'
         resultado += ''.join([e.str(n+2) for e in self.expresiones])
@@ -945,8 +959,8 @@ class Ambito():
                 return None 
             clase = cp
         tipo = self.metodos[(clase, metodo)][-1]
-        if tipo == "SELF_TYPE":
-            tipo = claseOriginal
+        # if tipo == "SELF_TYPE":
+        #     tipo = claseOriginal
     
         return self.metodos[(clase, metodo)][:-1]+[tipo]
 

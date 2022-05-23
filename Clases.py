@@ -396,7 +396,6 @@ class Switch(Nodo):
         tipoEsperado = self.expr.cast
         # TODO - Si el tipo de expr es void lanzo excepcion
         '''
-        TODO
         Each branch of a case is type checked in an environment where variable xi has type Ti. 
         The type of the entire case is the join of the types of its branches. 
         The variables declared on each branch of a case must all have distinct types.
@@ -412,13 +411,13 @@ class Switch(Nodo):
             if tipo in tiposEncontrados:
                 raise CodeError(f"Tipo repetido en Case: {tipo}", self.linea)
             tiposEncontrados.add(tipo)
-            self.cast = tipo # TODO - Esto no es así, es la unión de los tipos (el padre de todos)
+            # self.cast = tipo # TODO - Esto no es así, es la unión de los tipos (el padre de todos)
         
-        for tipoE in tiposEncontrados:
-            if tipoE == tipoEsperado or nuevoAmbito.esPadre(tipoEsperado, tipoE):
-                tipo = tipoE
+        # for tipoE in tiposEncontrados:
+        #     if tipoE == tipoEsperado or nuevoAmbito.esPadre(tipoEsperado, tipoE):
+        #         tipo = tipoE
                 # break
-
+        tipo = tipoEsperado
         self.cast = tipo
 
     def str(self, n):
@@ -445,10 +444,11 @@ class Nueva(Nodo):
         return valor
 
     def str(self, n):
+        c = self.cast if self.tipo != "SELF_TYPE" else 'SELF_TYPE'
         resultado = super().str(n)
         resultado += f'{(n)*" "}_new\n'
         resultado += f'{(n+2)*" "}{self.tipo}\n'
-        resultado += f'{(n)*" "}: {self.cast}\n'
+        resultado += f'{(n)*" "}: {c}\n'
         return resultado
 
 
@@ -483,7 +483,7 @@ class Suma(OperacionBinaria):
                 #self.cast = "Object"
         else:
                 self.cast = "Object"
-        self.ambito = ambito
+        # self.ambito = ambito
 
     def VALOR(self):
         return self.izquierda.VALOR() + self.derecha.VALOR()
@@ -660,6 +660,11 @@ class Not(Expresion):
 class EsNulo(Expresion):
     expr: Expresion = None
 
+    def TIPO(self, ambito):
+        self.expr.TIPO(ambito)
+        self.cast = "Bool"
+        if isinstance(self.expr, NoExpr): return 
+
     def str(self, n):
         resultado = super().str(n)
         resultado += f'{(n)*" "}_isvoid\n'
@@ -675,6 +680,8 @@ class Objeto(Expresion):
     nombre: str = '_no_set'
 
     def TIPO(self, ambito):
+        
+        
         tipo = ambito.tipoVar(self.nombre) # TODO - Falta Herencia
         if not tipo:
             raise CodeError(f"Variable '{self.nombre}' no definida", self.linea)
@@ -691,10 +698,12 @@ class Objeto(Expresion):
         # raise CodeError("Valor de Objeto")
 
     def str(self, n):
+        # if self.cast != "no_type":
+        c = 'SELF_TYPE' if self.nombre == "self" and self.cast != "_no_type" else self.cast
         resultado = super().str(n)
         resultado += f'{(n)*" "}_object\n'
         resultado += f'{(n+2)*" "}{self.nombre}\n'
-        resultado += f'{(n)*" "}: {self.cast}\n'
+        resultado += f'{(n)*" "}: {c}\n'
         return resultado
 
 
@@ -1074,12 +1083,6 @@ class Clase(Nodo):
                 nuevoAmbito.addVar(caracteristica.nombre, caracteristica.tipo, self.nombre, linea=caracteristica.linea)
                 caracteristica.TIPO(nuevoAmbito)
     
-    # def VALOR(self):
-    #     for caracteristica in self.caracteristicas:
-    #         if isinstance(caracteristica, Metodo):
-    #             caracteristica.VALOR(ambito)
-    #         else: # Atributo
-    #             caracteristica.VALOR(ambito)
     def VALOR(self):
         def valor(): return None
         return valor

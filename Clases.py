@@ -321,7 +321,9 @@ class Let(Expresion):
             self.inicializacion.TIPO(nuevoAmbito)
             if self.tipo != self.inicializacion.cast and not ambito.esPadre(self.tipo, self.inicializacion.cast):
                 raise CodeError(f"Tipo de asignacion en Let no coincide con el tipo especificado: {self.inicializacion.cast} != {self.tipo}")
-        
+            from main import PRACTICA
+            if PRACTICA == "04":
+                self.VALOR()
         # Continuo con el cuerpo del let
         self.cuerpo.TIPO(nuevoAmbito)
         from main import PRACTICA

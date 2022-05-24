@@ -17,7 +17,7 @@ from Parser import *
 from Clases import *
 
 n = 1
-PRACTICA = "03" # Practica que hay que evaluar
+PRACTICA = "04" # Practica que hay que evaluar
 if len(sys.argv) > 1:
     if sys.argv[1].isnumeric():
         PRACTICA = "0"+sys.argv[1]
@@ -37,7 +37,7 @@ if len(sys.argv) > n:
     fichs = sys.argv[n:]
     TESTS = fichs
 
-# TESTS = ["basicequality.cl"]#['cells.cl.test']
+# TESTS = ["bool.cl"]#['cells.cl.test']
 if __name__ == "__main__":
     incorrectos = 0
     totales = len(TESTS)

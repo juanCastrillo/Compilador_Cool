@@ -353,30 +353,13 @@ class CoolParser(Parser):
     '''
     ERRORS
     '''
-
-   
-
     @_('error ";"')
     def expresion_list(self, p):
         return [] 
 
-    # No puede hacer un bloque vacio {}
-    @_('"{" error "}"')#@_('OBJECTID "(" ")" ":" TYPEID "{" error "}"')
-    def feature(self, p):
-        return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=NoExpr(), linea=p.lineno)
-
     @_('formal_list error formal')
     def formal_list(self, p):
         return p.formal_list + [p.formal]
-
-    # bar(x:Int;y:Int):Int {if true then 4 fi};
-    @_('IF expr THEN expr ELSE expr error')
-    def expr(self, p):
-        return Condicional(condicion=p[1], verdadero=p[3], falso=p[5], linea=p.lineno)
-
-    @_('IF expr THEN expr error FI')
-    def expr(self, p):
-        return Condicional(condicion=p[1], verdadero=p[3], falso=p[5], linea=p.lineno)
 
     # casenoexpr.test
     @_('CASE error OF case_list ESAC')
@@ -392,38 +375,16 @@ class CoolParser(Parser):
     def assign_list(self, p):
         return p.assign_list + [(p.OBJECTID, p.TYPEID, NoExpr(), p.lineno)]
 
-    @_('OBJECTID ":" error')
-    def feature(self, p):
-        return Atributo(nombre=p.OBJECTID, tipo="Object", linea=p.lineno)
-
     @_('error ";"')
     def feature_list(self, p):
         return []
-
-    # @_('feature_list feature error')
-    # def feature_list(self, p):
-    #     return p[0] + [p[1]]
-
-    @_('CLASS TYPEID "{" error "}"')
-    def clas(self, p): 
-        return Clase(nombre=p[1], padre="Object", caracteristicas=[], nombre_fichero=self.nombre_fichero, linea=p.lineno)
 
     # ID( [ formal [, formal]* ] ) : TYPE { expr }
     @_('OBJECTID "(" ")" ":" TYPEID "{" error "}"')
     def feature(self, p):
         return Metodo(nombre=p.OBJECTID, tipo=p.TYPEID, cuerpo=NoExpr(), linea=p.lineno)
 
-    @_('feature error')
-    def feature_list(self, p):
-        return [p.feature]
-
-    @_('feature_list feature error')
-    def feature_list(self, p):
-        return p[0] + [p[1]]
-
     def error(self, p):
-        # line 3: syntax error at or near ':'
-        # Token(type='TYPEID', value='A', lineno=4, index=40)
         if not p:
             # "emptyprogram.test", line 0: syntax error at or near EOF
             self.errores.append(f'"{self.nombre_fichero}", line 0: syntax error at or near EOF')

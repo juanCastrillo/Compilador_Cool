@@ -126,7 +126,7 @@ class CoolLexer(Lexer):
     def NUMBER(self, t): return t
 
     '''
-    Special chars
+    Special chars that mean nothing more than code ordering and indenting
     '''
     @_(r"\t", r" ", r"\f", r'\013', r'\n|\r')
     def SPECIALOPERATORS(self, t): 
